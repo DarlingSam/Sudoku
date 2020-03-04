@@ -30,11 +30,9 @@ public class Solver {
     private static int[] blockBlockRowTest = {0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 8, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0,
-
             0, 0, 0, 0, 0, 0, 0, 0, 0,
             2, 9, 0, 0, 1, 4, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0,
-
             0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 8, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -49,15 +47,12 @@ public class Solver {
             0, 0, 8, 5, 0, 0, 0, 1, 0,
             0, 9, 0, 0, 0, 0, 4, 0, 0};
 
-
     private static int[] blockBlockColTest = {0, 0, 0, 0, 2, 0, 0, 0, 0,
             0, 0, 0, 0, 9, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 8, 0,
-
             0, 8, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 1, 0, 0, 0, 0,
             0, 0, 0, 0, 4, 0, 0, 0, 0,
-
             0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -83,23 +78,121 @@ public class Solver {
             0, 0, 0, 0, 9, 8, 0, 0, 0};
 
     public static void nakedSubset(Cell cell) {
+        /*First find how many candidates the cell has (candCount). All the while saving which candidates they are in
+        int[] cands, up to a maximum of 4.*/
         int candCount = 0;
-        for(boolean cand : cell.candidates) {
-            if(cand) {
+        int[] cands = new int[]{0, 0, 0, 0};
+        for (int cand = 0; cand < 9; cand++) {
+            if (cell.candidates[cand]) {
+                switch (candCount) {
+                    case 0:
+                        cands[0] = cand;
+                        break;
+                    case 1:
+                        cands[1] = cand;
+                        break;
+                    case 2:
+                        cands[2] = cand;
+                        break;
+                    case 3:
+                        cands[3] = cand;
+                        break;
+                    default:
+                        return;
+                }
                 candCount++;
             }
         }
 
-        if(candCount > 2) {
-            return;
+        /* Go through all other cells in the puzzle whose answer are 0, aren't the same cell as the cell we're
+        * checking and which are in the same row.
+        * For each cell count how many candidates they have.
+        * In the switch case it looks at how many candidates it has and determines if they are the same candidates
+        * as the cell in the argument.
+        * At the same time we count how many similar cells their are with similarCells, and keep their position
+        * in simCellsPos up to a maximum of three similar cells. */
+
+        int similarCells = 0;
+        int[] simCellsPos = new int[] {0,0,0};
+
+        for (Cell[] cells : grid) {
+            for (Cell cellC : cells) {
+                int candCountC = 0;
+                if (cellC.ans == 0 && cellC.pos != cell.pos && cellC.row == cell.row) {
+                    for (boolean cand : cellC.candidates) {
+                        if (cand) {
+                            candCountC++;
+                        }
+                    }
+                    switch (candCountC) {
+                        case 2:
+                            if(cellC.candidates[cands[0]] && cellC.candidates[cands[1]]) {
+                                simCellsPos[similarCells] = cellC.pos;
+                                similarCells++;
+                            }
+                            break;
+                        case 3:
+                            if(cellC.candidates[cands[0]] && cellC.candidates[cands[1]] && cellC.candidates[cands[2]]) {
+                                simCellsPos[similarCells] = cellC.pos;
+                                similarCells++;
+                            }
+                            break;
+                        case 4:
+                            if(cellC.candidates[cands[0]] && cellC.candidates[cands[1]] && cellC.candidates[cands[2]] && cellC.candidates[cands[3]]) {
+                                simCellsPos[similarCells] = cellC.pos;
+                                similarCells++;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
         }
 
-        for(Cell[] cells : grid) {
-            for(Cell cellC : cells) {
-
+        if(candCount == similarCells + 1) {
+            switch(similarCells) {
+                case 1:
+                    System.out.println("Removing " + (cands[0] + 1) + " and " + (cands[1] + 1) + " from row due to " + cell.pos + " and " + simCellsPos[0]);
+                    removeCandInRowPrime(cell.row, candCount, cands, new int[] {cell.pos, simCellsPos[0]});
+                    // code to remove 2 candidates from all but 2 cells in the row
+                    break;
+                case 2:
+                    System.out.println("Removing " + (cands[0] + 1) + " and " + (cands[1] + 1) + " and " + (cands[2] + 1) + " from row due to " + cell.pos + " and " + simCellsPos[0] + " and " + simCellsPos[1]);
+                    removeCandInRowPrime(cell.row, candCount, cands, new int[] {cell.pos, simCellsPos[0], simCellsPos[1]});
+                    // code to remove 3 candidates from all but 3 cells in the row
+                    break;
+                case 3:
+                    System.out.println("Removing " + (cands[0] + 1) + " and " + (cands[1] + 1) + " and " + (cands[2] + 1) + " and " + (cands[3] + 1) + " from row due to " + cell.pos + " and " + simCellsPos[0] + " and " + simCellsPos[1] + " and " + simCellsPos[2]);
+                    removeCandInRowPrime(cell.row, candCount, cands, new int[] {cell.pos, simCellsPos[0], simCellsPos[1], simCellsPos[2]});
+                    // code to remove 4 candidates from all but 4 cells in the row
+                    break;
+                default:
+                    break;
             }
         }
     }
+
+     public static void removeCandInRowPrime(int row, int numOfCands, int[] cands, int[] exceptions) {
+        for (Cell cell : grid[row]) {
+            boolean isExcept = false;
+            for(int ex : exceptions) {
+                if (cell.pos == ex) {
+                    isExcept = true;
+                    break;
+                }
+            }
+            if(!isExcept) {
+                for(int cand = 0; cand < numOfCands; cand++) {
+                    if(cell.ans == 0 && cell.candidates[cands[cand]]) {
+                        System.out.println("Removing from " + cell.pos + " candidate " + (cands[cand] + 1));
+                        cell.candidates[cands[cand]] = false;
+                        change = true;
+                    }
+                }
+            }
+        }
+     }
 
     public static void blockBlockColInteraction(Cell cell) {
         // find two cells in one box with common cand. then find another pair in the same row with same cand.
@@ -530,7 +623,9 @@ public class Solver {
     public static void removeCandInCol(Cell cell) {
         for (Cell[] cells : grid) {
             if (cells[cell.col].candidates[cell.ans - 1]) {
-//                System.out.println("Removing from " + cells[cell.col].pos + " candidate " + cell.ans);
+                if(cells[cell.col].pos == 16) {
+                    System.out.println("Removing from " + cells[cell.col].pos + " candidate " + cell.ans);
+                }
                 cells[cell.col].candidates[cell.ans - 1] = false;
                 change = true;
             }
@@ -540,7 +635,9 @@ public class Solver {
     public static void removeCandInRow(Cell cell) {
         for (Cell cells : grid[cell.row]) {
             if (cells.candidates[cell.ans - 1]) {
-//                System.out.println("Removing from " + cells.pos + " candidate " + cell.ans);
+                if(cells.pos == 16) {
+                    System.out.println("Removing from " + cells.pos + " candidate " + cell.ans);
+                }
                 cells.candidates[cell.ans - 1] = false;
                 change = true;
             }
@@ -551,7 +648,9 @@ public class Solver {
         for (Cell[] cells : grid) {
             for (Cell cell2 : cells) {
                 if (cell2.box == cell.box && cell2.candidates[cell.ans - 1]) {
-//                    System.out.println("Removing from " + cell2.pos + " candidate " + cell.ans);
+                    if(cell2.pos == 16) {
+                        System.out.println("Removing from " + cell2.pos + " candidate " + cell.ans);
+                    }
                     cell2.candidates[cell.ans - 1] = false;
                     change = true;
                 }
@@ -569,10 +668,9 @@ public class Solver {
                 if (cell.pos % 27 == 0 && cell.pos != 0) {
                     System.out.println();
                 }
-                if(cell.ans == 0) {
+                if (cell.ans == 0) {
                     System.out.print("+");
-                }
-                else {
+                } else {
                     System.out.print(cell.ans);
                 }
             }
@@ -590,32 +688,7 @@ public class Solver {
         }
     }
 
-    public static Cell[][] solve(Cell[][] grid) {
-        change = false;
-        for (Cell[] cells : grid) {
-            for (Cell cell : cells) {
-                if (cell.ans != 0) {
-                    soleCandidate(cell);
-                } else {
-                    rowBlockInteraction(cell);
-                    colBlockInteraction(cell);
-                    blockBlockRowInteraction(cell);
-                    blockBlockColInteraction(cell);
-                    uniqueCandidate(cell);
-                    cell.findAns();
-
-                }
-            }
-        }
-
-        if (!change) {
-            return grid;
-        }
-        passes++;
-        return solve(grid);
-    }
-
-    public static void printAllCands(int...indexes) {
+    public static void printAllCands(int... indexes) {
         for (Cell[] cells : grid) {
             for (Cell cell : cells) {
                 if (indexes.length == 0) {
@@ -631,9 +704,38 @@ public class Solver {
         }
     }
 
+    public static Cell[][] solve(Cell[][] grid) {
+        change = false;
+        for (Cell[] cells : grid) {
+            for (Cell cell : cells) {
+                if (cell.ans != 0) {
+                    soleCandidate(cell);
+                } else {
+//                    rowBlockInteraction(cell);
+//                    colBlockInteraction(cell);
+//                    blockBlockRowInteraction(cell);
+//                    blockBlockColInteraction(cell);
+                    if(cell.pos == 16) {
+                        printAllCands(16);
+                    }
+                    nakedSubset(cell);
+                    uniqueCandidate(cell);
+                    cell.findAns();
+
+                }
+            }
+        }
+
+        if (!change) {
+            return grid;
+        }
+        passes++;
+        return solve(grid);
+    }
+
     public static void main(String[] args) {
-//        initialise(puzzle);
-        initialise(automorphic);
+        initialise(puzzle);
+//        initialise(automorphic);
 //        initialise(medium);
 //        initialise(hardestPuzzle);
 //        initialise(rowBlockTest);
@@ -644,9 +746,8 @@ public class Solver {
         solve(grid);
         printGrid();
 
-
         System.out.println(passes);
-//        printAllCands();
+//        printAllCands(15, 16, 17);
 //        grid[4][4].printC();
     }
 }

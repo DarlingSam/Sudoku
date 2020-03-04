@@ -20,8 +20,8 @@ public class Cell {
     void findAns(){
         int count = 0;
         int num = 0;
-        for(int i = 0; i < 9; i++){
-            if(candidates[i]){
+        for(int i = 0; i < 9; i++) {
+            if (candidates[i]) {
                 count++;
                 num = i;
             }
