@@ -28,7 +28,7 @@ public class Cell {
         }
         if(count == 1){
             num++;
-            System.out.println("SC Setting ans for cell " + pos + " to " + num);
+//            System.out.println("SC Setting ans for cell " + pos + " to " + num);
             ans = num;
         }
     }

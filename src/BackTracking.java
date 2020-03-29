@@ -67,8 +67,8 @@ public class BackTracking {
             0, 9, 0, 0, 0, 0, 4, 0, 0};
 
     public static void main(String[] args) {
-//        initialise(puzzle);
-        initialise(automorphic);
+        initialise(puzzle);
+//        initialise(automorphic);
 //        initialise(hardest);
 //        initialise(hardestPuzzle);
 //        initialise(hard);

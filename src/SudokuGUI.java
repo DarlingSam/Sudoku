@@ -14,8 +14,6 @@ public class SudokuGUI extends JFrame {
 
     public JPanel[][] candPanes = new JPanel[9][9];
 
-    public boolean[][] showCands = new boolean[9][9];
-
     public boolean[][] setByButton = new boolean[9][9];
 
     public void placePuzzle(int[] puzzle) {
@@ -163,12 +161,7 @@ public class SudokuGUI extends JFrame {
         setByButton[row][col] = false;
 
         cellButtons[row][col].addActionListener(e -> {
-                    if(setByButton[row][col]) {
-                        setByButton[row][col] = false;
-                    }
-                    else {
-                        setByButton[row][col] = true;
-                    }
+            setByButton[row][col] = !setByButton[row][col];
                     toggleCands(row, col);
                 }
         );
