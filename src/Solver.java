@@ -199,7 +199,7 @@ public class Solver {
         }
     }
 
-    public static boolean unionOfCandidates(boolean[][] numInCells, int amount) {
+    public static boolean unionOfCandidates(boolean[][] numInCells) {
         boolean[] appearances = new boolean[]{false, false, false, false, false, false, false, false, false};
 
         for (boolean[] numInCell : numInCells) {
@@ -216,29 +216,49 @@ public class Solver {
             }
         }
 
-        return count == amount;
+        return count == numInCells.length;
     }
 
     public static boolean allMadeContribution;
 
-    public static Cell[] exceptionsBox(int box, int... nums) {
-        Cell[] exceptions = new Cell[nums.length];
+    public static void removeForHiddenSubsetBox(int box, int... nums) {
+        Cell[] toRemoveFrom = new Cell[nums.length];
+
         int exPos = 0;
         for (Cell[] cells : grid) {
             for (Cell cell : cells) {
-                if(cell.box == box) {
-                    boolean placed = false;
+                if (cell.box == box) {
+                    boolean appeared = false;
                     for (int num : nums) {
-                        if (!placed && cell.candidates[num]) {
-                            exceptions[exPos] = cell;
-                            placed = true;
-                            exPos++;
+                        if (cell.candidates[num]) {
+                            if (!appeared) {
+                                exPos++;
+                                appeared = true;
+                            }
                         }
+                    }
+                    if (appeared) {
+                        toRemoveFrom[exPos - 1] = cell;
                     }
                 }
             }
         }
-        return exceptions;
+
+        for (Cell cellR : toRemoveFrom) {
+            for (int cand = 0; cand < 9; cand++) {
+                boolean found = false;
+                for (int num : nums) {
+                    if (cand == num && cellR.candidates[cand]) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found && cellR.candidates[cand]) {
+                    System.out.println("HSB removing " + (cand + 1) + " from " + cellR.pos);
+                    cellR.candidates[cand] = false;
+                }
+            }
+        }
     }
 
     public static boolean[][] numInCellsBox(int box, int... nums) {
@@ -273,7 +293,7 @@ public class Solver {
             }
         }
 
-        for(boolean contribution : contributions) {
+        for (boolean contribution : contributions) {
             if (!contribution) {
                 allMadeContribution = false;
                 break;
@@ -287,42 +307,34 @@ public class Solver {
         /* For each number create a boolean array for which cells they appear in. (can just use the cells candidate array). for every combination of 4 numbers
          * see if the union of cells they appear in results in just 4 cells.*/
 
-        for(int amount = 4; amount >= 2; amount--) {
+        for (int amount = 4; amount >= 2; amount--) {
             for (int num1 = 0; num1 < 9; num1++) {
                 for (int num2 = num1 + 1; num2 < 9; num2++) {
-                    if(amount == 2) {
+                    if (amount == 2) {
                         allMadeContribution = true;
-                        if(unionOfCandidates(numInCellsBox(box, num1, num2), amount) && allMadeContribution) {
-//                            System.out.println("Hello 2");
-//                            System.out.println((num1+1) + "," + (num2+1));
-                            int[] cands = new int[] {num1, num2};
+                        if (unionOfCandidates(numInCellsBox(box, num1, num2)) && allMadeContribution) {
+                            System.out.println("HSB hidden pair " + (num1 + 1) + "," + (num2 + 1) + " in box " + box);
 
-                            removeCandInBox(box, cands, exceptionsBox(box, num1, num2));
+                            removeForHiddenSubsetBox(box, num1, num2);
                         }
-                    }
-                    else {
+                    } else {
                         for (int num3 = num2 + 1; num3 < 9; num3++) {
-                            if(amount == 3) {
+                            if (amount == 3) {
                                 allMadeContribution = true;
-                                if(unionOfCandidates(numInCellsBox(box, num1, num2, num3), amount) && allMadeContribution) {
-//                                    System.out.println("Hello 3");
-//                                    System.out.println((num1+1) + "," + (num2+1) + "," + (num3+1));
-                                    int[] cands = new int[] {num1, num2, num3};
+                                if (unionOfCandidates(numInCellsBox(box, num1, num2, num3)) && allMadeContribution) {
+                                    System.out.println("HSB hidden triple " + (num1 + 1) + "," + (num2 + 1) + "," + (num3 + 1) + " in box " + box);
 
-                                    removeCandInBox(box, cands, exceptionsBox(box, num1, num2, num3));
+                                    removeForHiddenSubsetBox(box, num1, num2, num3);
                                 }
-                            }
-                            else {
+                            } else {
                                 for (int num4 = num3 + 1; num4 < 9; num4++) {
                                     // create boolean array for each number of which cells they appear in
                                     // create method which unions the arrays and returns true if the boolean array result has only 4 true's
                                     allMadeContribution = true;
-                                    if(unionOfCandidates(numInCellsBox(box, num1, num2, num3, num4), amount) && allMadeContribution) {
-//                                        System.out.println("Hello 4");
-//                                        System.out.println((num1+1) + "," + (num2+1) + "," + (num3+1) + "," + (num4+1));
-                                        int[] cands = new int[] {num1, num2, num3, num4};
+                                    if (unionOfCandidates(numInCellsBox(box, num1, num2, num3, num4)) && allMadeContribution) {
+                                        System.out.println("HSB hidden quad " + (num1 + 1) + "," + (num2 + 1) + "," + (num3 + 1) + "," + (num4 + 1) + " in box " + box);
 
-                                        removeCandInBox(box, cands, exceptionsBox(box, num1, num2, num3, num4));
+                                        removeForHiddenSubsetBox(box, num1, num2, num3, num4);
                                     }
                                 }
                             }
@@ -333,20 +345,40 @@ public class Solver {
         }
     }
 
-    public static Cell[] exceptionsCol(int col, int... nums) {
-        Cell[] exceptions = new Cell[nums.length];
+    public static void removeForHiddenSubsetCol(int col, int... nums) {
+        Cell[] toRemoveFrom = new Cell[nums.length];
+
         int exPos = 0;
         for (Cell[] cell : grid) {
-            boolean placed = false;
-            for(int num : nums) {
-                if(!placed && cell[col].candidates[num]) {
-                    exceptions[exPos] = cell[col];
-                    placed = true;
-                    exPos++;
+            boolean appeared = false;
+            for (int num : nums) {
+                if (cell[col].candidates[num]) {
+                    if (!appeared) {
+                        exPos++;
+                        appeared = true;
+                    }
+                }
+            }
+            if (appeared) {
+                toRemoveFrom[exPos - 1] = cell[col];
+            }
+        }
+
+        for (Cell cell : toRemoveFrom) {
+            for (int cand = 0; cand < 9; cand++) {
+                boolean found = false;
+                for (int num : nums) {
+                    if (cand == num && cell.candidates[cand]) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found && cell.candidates[cand]) {
+                    System.out.println("HSC removing " + (cand + 1) + " from " + cell.pos);
+                    cell.candidates[cand] = false;
                 }
             }
         }
-        return exceptions;
     }
 
     public static boolean[][] numInCellsCol(int col, int... nums) {
@@ -373,7 +405,7 @@ public class Solver {
             }
         }
 
-        for(boolean contribution : contributions) {
+        for (boolean contribution : contributions) {
             if (!contribution) {
                 allMadeContribution = false;
                 break;
@@ -387,42 +419,34 @@ public class Solver {
         /* For each number create a boolean array for which cells they appear in. (can just use the cells candidate array). for every combination of 4 numbers
          * see if the union of cells they appear in results in just 4 cells.*/
 
-        for(int amount = 4; amount >= 2; amount--) {
+        for (int amount = 4; amount >= 2; amount--) {
             for (int num1 = 0; num1 < 9; num1++) {
                 for (int num2 = num1 + 1; num2 < 9; num2++) {
-                    if(amount == 2) {
+                    if (amount == 2) {
                         allMadeContribution = true;
-                        if(unionOfCandidates(numInCellsCol(col, num1, num2), amount) && allMadeContribution) {
-//                            System.out.println("Hello 2");
-//                            System.out.println((num1+1) + "," + (num2+1));
-                            int[] cands = new int[] {num1, num2};
+                        if (unionOfCandidates(numInCellsCol(col, num1, num2)) && allMadeContribution) {
+                            System.out.println("HSC hidden pair " + (num1 + 1) + "," + (num2 + 1) + " in col " + col);
 
-                            removeCandInCol(col, cands, exceptionsCol(col, num1, num2));
+                            removeForHiddenSubsetCol(col, num1, num2);
                         }
-                    }
-                    else {
+                    } else {
                         for (int num3 = num2 + 1; num3 < 9; num3++) {
-                            if(amount == 3) {
+                            if (amount == 3) {
                                 allMadeContribution = true;
-                                if(unionOfCandidates(numInCellsCol(col, num1, num2, num3), amount) && allMadeContribution) {
-//                                    System.out.println("Hello 3");
-//                                    System.out.println((num1+1) + "," + (num2+1) + "," + (num3+1));
-                                    int[] cands = new int[] {num1, num2, num3};
+                                if (unionOfCandidates(numInCellsCol(col, num1, num2, num3)) && allMadeContribution) {
+                                    System.out.println("HSC hidden triple " + (num1 + 1) + "," + (num2 + 1) + "," + (num3 + 1) + " in col " + col);
 
-                                    removeCandInCol(col, cands, exceptionsCol(col, num1, num2, num3));
+                                    removeForHiddenSubsetCol(col, num1, num2, num3);
                                 }
-                            }
-                            else {
+                            } else {
                                 for (int num4 = num3 + 1; num4 < 9; num4++) {
                                     // create boolean array for each number of which cells they appear in
                                     // create method which unions the arrays and returns true if the boolean array result has only 4 true's
                                     allMadeContribution = true;
-                                    if(unionOfCandidates(numInCellsCol(col, num1, num2, num3, num4), amount) && allMadeContribution) {
-//                                        System.out.println("Hello 4");
-//                                        System.out.println((num1+1) + "," + (num2+1) + "," + (num3+1) + "," + (num4+1));
-                                        int[] cands = new int[] {num1, num2, num3, num4};
+                                    if (unionOfCandidates(numInCellsCol(col, num1, num2, num3, num4)) && allMadeContribution) {
+                                        System.out.println("HSC hidden quad " + (num1 + 1) + "," + (num2 + 1) + "," + (num3 + 1) + "," + (num4 + 1) + " in col " + col);
 
-                                        removeCandInCol(col, cands, exceptionsCol(col, num1, num2, num3, num4));
+                                        removeForHiddenSubsetCol(col, num1, num2, num3, num4);
                                     }
                                 }
                             }
@@ -433,20 +457,40 @@ public class Solver {
         }
     }
 
-    public static Cell[] exceptionsRow(int row, int... nums) {
-        Cell[] exceptions = new Cell[nums.length];
+    public static void removeForHiddenSubsetRow(int row, int... nums) {
+        Cell[] toRemoveFrom = new Cell[nums.length];
+
         int exPos = 0;
         for (Cell cell : grid[row]) {
-            boolean placed = false;
-            for(int num : nums) {
-                if(!placed && cell.candidates[num]) {
-                    exceptions[exPos] = cell;
-                    placed = true;
-                    exPos++;
+            boolean appeared = false;
+            for (int num : nums) {
+                if (cell.candidates[num]) {
+                    if (!appeared) {
+                        exPos++;
+                        appeared = true;
+                    }
+                }
+            }
+            if (appeared) {
+                toRemoveFrom[exPos - 1] = cell;
+            }
+        }
+
+        for (Cell cell : toRemoveFrom) {
+            for (int cand = 0; cand < 9; cand++) {
+                boolean found = false;
+                for (int num : nums) {
+                    if (cand == num && cell.candidates[cand]) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found && cell.candidates[cand]) {
+                    System.out.println("HSR removing " + (cand + 1) + " from " + cell.pos);
+                    cell.candidates[cand] = false;
                 }
             }
         }
-        return exceptions;
     }
 
     public static boolean[][] numInCellsRow(int row, int... nums) {
@@ -460,7 +504,6 @@ public class Solver {
 
         for (Cell cell : grid[row]) {
             int numPos = 0;
-
             for (int num : nums) {
                 if (cell.candidates[num]) {
                     numInCells[numPos][cell.pos % 9] = true;
@@ -473,7 +516,7 @@ public class Solver {
             }
         }
 
-        for(boolean contribution : contributions) {
+        for (boolean contribution : contributions) {
             if (!contribution) {
                 allMadeContribution = false;
                 break;
@@ -487,42 +530,34 @@ public class Solver {
         /* For each number create a boolean array for which cells they appear in. (can just use the cells candidate array). for every combination of 4 numbers
          * see if the union of cells they appear in results in just 4 cells.*/
 
-        for(int amount = 4; amount >= 2; amount--) {
+        for (int amount = 4; amount >= 2; amount--) {
             for (int num1 = 0; num1 < 9; num1++) {
                 for (int num2 = num1 + 1; num2 < 9; num2++) {
-                    if(amount == 2) {
+                    if (amount == 2) {
                         allMadeContribution = true;
-                        if(unionOfCandidates(numInCellsRow(row, num1, num2), amount) && allMadeContribution) {
-//                            System.out.println("Hello 2");
-//                            System.out.println((num1+1) + "," + (num2+1));
-                            int[] cands = new int[] {num1, num2};
+                        if (unionOfCandidates(numInCellsRow(row, num1, num2)) && allMadeContribution) {
+                            System.out.println("HSR hidden pair " + (num1 + 1) + "," + (num2 + 1) + " in row " + row);
 
-                            removeCandInRow(row, cands, exceptionsRow(row, num1, num2));
+                            removeForHiddenSubsetRow(row, num1, num2);
                         }
-                    }
-                    else {
+                    } else {
                         for (int num3 = num2 + 1; num3 < 9; num3++) {
-                            if(amount == 3) {
+                            if (amount == 3) {
                                 allMadeContribution = true;
-                                if(unionOfCandidates(numInCellsRow(row, num1, num2, num3), amount) && allMadeContribution) {
-//                                    System.out.println("Hello 3");
-//                                    System.out.println((num1+1) + "," + (num2+1) + "," + (num3+1));
-                                    int[] cands = new int[] {num1, num2, num3};
+                                if (unionOfCandidates(numInCellsRow(row, num1, num2, num3)) && allMadeContribution) {
+                                    System.out.println("HSR hidden triple " + (num1 + 1) + "," + (num2 + 1) + "," + (num3 + 1) + " in row " + row);
 
-                                    removeCandInRow(row, cands, exceptionsRow(row, num1, num2, num3));
+                                    removeForHiddenSubsetRow(row, num1, num2, num3);
                                 }
-                            }
-                            else {
+                            } else {
                                 for (int num4 = num3 + 1; num4 < 9; num4++) {
                                     // create boolean array for each number of which cells they appear in
                                     // create method which unions the arrays and returns true if the boolean array result has only 4 true's
                                     allMadeContribution = true;
-                                    if(unionOfCandidates(numInCellsRow(row, num1, num2, num3, num4), amount) && allMadeContribution) {
-//                                        System.out.println("Hello 4");
-//                                        System.out.println((num1+1) + "," + (num2+1) + "," + (num3+1) + "," + (num4+1));
-                                        int[] cands = new int[] {num1, num2, num3, num4};
+                                    if (unionOfCandidates(numInCellsRow(row, num1, num2, num3, num4)) && allMadeContribution) {
+                                        System.out.println("HSR hidden quad " + (num1 + 1) + "," + (num2 + 1) + "," + (num3 + 1) + "," + (num4 + 1) + " in row " + row);
 
-                                        removeCandInRow(row, cands, exceptionsRow(row, num1, num2, num3, num4));
+                                        removeForHiddenSubsetRow(row, num1, num2, num3, num4);
                                     }
                                 }
                             }
@@ -1340,16 +1375,18 @@ public class Solver {
         }
 
         if (!change) {
+            System.out.println(passes);
             return grid;
         }
         passes++;
+
         return solve(grid);
     }
 
     public static void main(String[] args) {
 //        initialise(puzzle);
-//        initialise(automorphic);
-        initialise(medium);
+        initialise(automorphic);
+//        initialise(medium);
 //        initialise(hardestPuzzle);
 //        initialise(rowBlockTest);
 //        initialise(blockBlockRowTest);
@@ -1357,11 +1394,21 @@ public class Solver {
 //        initialise(empty);
 
         printGrid();
+
+//        setCandsForHiddenTriple(4);
+
+//        printAllCands(4, 13, 22, 31, 40, 49, 58, 67, 76);
+
+//        hiddenSubsetCol(4);
+
+//        printAllCands(4, 13, 22, 31, 40, 49, 58, 67, 76);
         solve(grid);
 //        backTrack(grid);
         printGrid();
 
-        System.out.println(passes);
+//        printAllCands();
+
+//        System.out.println(passes);
 //        printAllCands(15, 16, 17);
 
     }
