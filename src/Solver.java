@@ -9,6 +9,16 @@ public class Solver {
 
     private static int passes = 0;
 
+    public static int[] xWingRow = {9, 8, 0, 0, 6, 2, 7, 5, 3,
+            0, 6, 5, 0, 0, 3, 0, 0, 0,
+            3, 2, 7, 0, 5, 0, 0, 0, 6,
+            7, 9, 0, 0, 3, 0, 5, 0, 0,
+            0, 5, 0, 0, 0, 9, 0, 0, 0,
+            8, 3, 2, 0, 4, 5, 0, 0, 9,
+            6, 7, 3, 5, 9, 1, 4, 2, 8,
+            2, 4, 9, 0, 8, 7, 0, 0, 5,
+            5, 1, 8, 0, 2, 0, 0, 0, 7};
+
     public static int[] puzzle = {0, 6, 0, 3, 0, 0, 8, 0, 4,
             5, 3, 7, 0, 9, 0, 0, 0, 0,
             0, 4, 0, 0, 0, 6, 3, 0, 7,
@@ -98,6 +108,16 @@ public class Solver {
             0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0,};
+
+    public static int[] xWingCol = {0, 4, 1, 7, 2, 9, 0, 3, 0,
+            7, 6, 9, 0, 0, 3, 4, 0, 2,
+            0, 3, 2, 6, 4, 0, 7, 1, 9,
+            4, 0, 3, 9, 0, 0, 1, 7, 0,
+            6, 0, 7, 0, 0, 4, 9, 0, 3,
+            1, 9, 5, 3, 7, 0, 0, 2, 4,
+            2, 1, 4, 5, 6, 7, 3, 9, 8,
+            3, 7, 6, 0, 9, 0, 5, 4, 1,
+            9, 5, 8, 4, 3, 1, 2, 6, 7};
 
     public static void setCandsForHiddenTriple(int col) {
         // Col needs to be 4
@@ -199,6 +219,127 @@ public class Solver {
         }
     }
 
+    public static void xWingCol() {
+
+        for (int cand = 0; cand < 9; cand++) {
+            for (int col1 = 0; col1 < 9; col1++) {
+                for (int col2 = col1 + 1; col2 < 9; col2++) {
+
+                    boolean inEveryCellCol1 = true;
+                    boolean inEveryCellCol2 = true;
+                    for (Cell[] cell : grid) {
+                        if (!cell[col1].candidates[cand] && cell[col1].ans == 0) {
+                            inEveryCellCol1 = false;
+                            break;
+                        }
+                    }
+                    for (Cell[] cell : grid) {
+                        if (!cell[col2].candidates[cand] && cell[col2].ans == 0) {
+                            inEveryCellCol2 = false;
+                            break;
+                        }
+                    }
+
+                    if (inEveryCellCol1 && inEveryCellCol2) {
+                        for (int row1 = 0; row1 < 9; row1++) {
+                            for (int row2 = row1 + 1; row2 < 9; row2++) {
+
+
+
+                                boolean inOneCellRow1 = true;
+                                boolean inOneCellRow2 = true;
+
+                                ArrayList<Cell> maybeExcept = new ArrayList<>();
+
+                                for (Cell cell : grid[row1]) {
+                                    if (cell.candidates[cand] && cell.col != col1 && cell.col != col2) {
+                                        inOneCellRow1 = false;
+                                    } else if (cell.candidates[cand]) {
+                                        maybeExcept.add(cell);
+                                    }
+                                }
+                                for (Cell cell : grid[row2]) {
+                                    if (cell.candidates[cand] && cell.col != col1 && cell.col != col2) {
+                                        inOneCellRow2 = false;
+                                    } else if (cell.candidates[cand]) {
+                                        maybeExcept.add(cell);
+                                    }
+                                }
+
+                                if (inOneCellRow1 && inOneCellRow2 && maybeExcept.size() == 4) {
+                                    Cell[] exceptions = maybeExcept.toArray(new Cell[0]);
+
+                                    System.out.println("xWingCol removing");
+                                    removeCandInCol(col1, new int[]{cand}, exceptions);
+                                    removeCandInCol(col2, new int[]{cand}, exceptions);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public static void xWingRow() {
+
+        for (int cand = 0; cand < 9; cand++) {
+            for (int row1 = 0; row1 < 9; row1++) {
+                for (int row2 = row1 + 1; row2 < 9; row2++) {
+
+                    boolean inEveryCellRow1 = true;
+                    boolean inEveryCellRow2 = true;
+                    for (Cell cell : grid[row1]) {
+                        if (!cell.candidates[cand] && cell.ans == 0) {
+                            inEveryCellRow1 = false;
+                            break;
+                        }
+                    }
+                    for (Cell cell : grid[row2]) {
+                        if (!cell.candidates[cand] && cell.ans == 0) {
+                            inEveryCellRow2 = false;
+                            break;
+                        }
+                    }
+                    if (inEveryCellRow1 && inEveryCellRow2) {
+                        for (int col1 = 0; col1 < 9; col1++) {
+                            for (int col2 = col1 + 1; col2 < 9; col2++) {
+
+                                boolean inOneCellCol1 = true;
+                                boolean inOneCellCol2 = true;
+
+                                ArrayList<Cell> maybeExcept = new ArrayList<>();
+
+                                for (Cell[] cell : grid) {
+                                    if (cell[col1].candidates[cand] && cell[col1].row != row1 && cell[col1].row != row2) {
+                                        inOneCellCol1 = false;
+                                    } else if (cell[col1].candidates[cand]) {
+                                        maybeExcept.add(cell[col1]);
+                                    }
+                                }
+                                for (Cell[] cell : grid) {
+                                    if (cell[col2].candidates[cand] && cell[col2].row != row1 && cell[col2].row != row2) {
+                                        inOneCellCol2 = false;
+                                    } else if (cell[col2].candidates[cand]) {
+                                        maybeExcept.add(cell[col2]);
+                                    }
+                                }
+
+                                if (inOneCellCol1 && inOneCellCol2 && maybeExcept.size() == 4) {
+                                    Cell[] exceptions = maybeExcept.toArray(new Cell[0]);
+
+                                    System.out.println("xWingRow removing");
+                                    removeCandInRow(row1, new int[]{cand}, exceptions);
+                                    removeCandInRow(row2, new int[]{cand}, exceptions);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     public static boolean unionOfCandidates(boolean[][] numInCells) {
         boolean[] appearances = new boolean[]{false, false, false, false, false, false, false, false, false};
 
@@ -254,8 +395,9 @@ public class Solver {
                     }
                 }
                 if (!found && cellR.candidates[cand]) {
-                    System.out.println("HSB removing " + (cand + 1) + " from " + cellR.pos);
+//                    System.out.println("HSB removing " + (cand + 1) + " from " + cellR.pos);
                     cellR.candidates[cand] = false;
+                    change = true;
                 }
             }
         }
@@ -313,7 +455,7 @@ public class Solver {
                     if (amount == 2) {
                         allMadeContribution = true;
                         if (unionOfCandidates(numInCellsBox(box, num1, num2)) && allMadeContribution) {
-                            System.out.println("HSB hidden pair " + (num1 + 1) + "," + (num2 + 1) + " in box " + box);
+//                            System.out.println("HSB hidden pair " + (num1 + 1) + "," + (num2 + 1) + " in box " + box);
 
                             removeForHiddenSubsetBox(box, num1, num2);
                         }
@@ -322,7 +464,7 @@ public class Solver {
                             if (amount == 3) {
                                 allMadeContribution = true;
                                 if (unionOfCandidates(numInCellsBox(box, num1, num2, num3)) && allMadeContribution) {
-                                    System.out.println("HSB hidden triple " + (num1 + 1) + "," + (num2 + 1) + "," + (num3 + 1) + " in box " + box);
+//                                    System.out.println("HSB hidden triple " + (num1 + 1) + "," + (num2 + 1) + "," + (num3 + 1) + " in box " + box);
 
                                     removeForHiddenSubsetBox(box, num1, num2, num3);
                                 }
@@ -332,7 +474,7 @@ public class Solver {
                                     // create method which unions the arrays and returns true if the boolean array result has only 4 true's
                                     allMadeContribution = true;
                                     if (unionOfCandidates(numInCellsBox(box, num1, num2, num3, num4)) && allMadeContribution) {
-                                        System.out.println("HSB hidden quad " + (num1 + 1) + "," + (num2 + 1) + "," + (num3 + 1) + "," + (num4 + 1) + " in box " + box);
+//                                        System.out.println("HSB hidden quad " + (num1 + 1) + "," + (num2 + 1) + "," + (num3 + 1) + "," + (num4 + 1) + " in box " + box);
 
                                         removeForHiddenSubsetBox(box, num1, num2, num3, num4);
                                     }
@@ -374,8 +516,9 @@ public class Solver {
                     }
                 }
                 if (!found && cell.candidates[cand]) {
-                    System.out.println("HSC removing " + (cand + 1) + " from " + cell.pos);
+//                    System.out.println("HSC removing " + (cand + 1) + " from " + cell.pos);
                     cell.candidates[cand] = false;
+                    change = true;
                 }
             }
         }
@@ -425,7 +568,7 @@ public class Solver {
                     if (amount == 2) {
                         allMadeContribution = true;
                         if (unionOfCandidates(numInCellsCol(col, num1, num2)) && allMadeContribution) {
-                            System.out.println("HSC hidden pair " + (num1 + 1) + "," + (num2 + 1) + " in col " + col);
+//                            System.out.println("HSC hidden pair " + (num1 + 1) + "," + (num2 + 1) + " in col " + col);
 
                             removeForHiddenSubsetCol(col, num1, num2);
                         }
@@ -434,7 +577,7 @@ public class Solver {
                             if (amount == 3) {
                                 allMadeContribution = true;
                                 if (unionOfCandidates(numInCellsCol(col, num1, num2, num3)) && allMadeContribution) {
-                                    System.out.println("HSC hidden triple " + (num1 + 1) + "," + (num2 + 1) + "," + (num3 + 1) + " in col " + col);
+//                                    System.out.println("HSC hidden triple " + (num1 + 1) + "," + (num2 + 1) + "," + (num3 + 1) + " in col " + col);
 
                                     removeForHiddenSubsetCol(col, num1, num2, num3);
                                 }
@@ -444,7 +587,7 @@ public class Solver {
                                     // create method which unions the arrays and returns true if the boolean array result has only 4 true's
                                     allMadeContribution = true;
                                     if (unionOfCandidates(numInCellsCol(col, num1, num2, num3, num4)) && allMadeContribution) {
-                                        System.out.println("HSC hidden quad " + (num1 + 1) + "," + (num2 + 1) + "," + (num3 + 1) + "," + (num4 + 1) + " in col " + col);
+//                                        System.out.println("HSC hidden quad " + (num1 + 1) + "," + (num2 + 1) + "," + (num3 + 1) + "," + (num4 + 1) + " in col " + col);
 
                                         removeForHiddenSubsetCol(col, num1, num2, num3, num4);
                                     }
@@ -486,8 +629,9 @@ public class Solver {
                     }
                 }
                 if (!found && cell.candidates[cand]) {
-                    System.out.println("HSR removing " + (cand + 1) + " from " + cell.pos);
+//                    System.out.println("HSR removing " + (cand + 1) + " from " + cell.pos);
                     cell.candidates[cand] = false;
+                    change = true;
                 }
             }
         }
@@ -536,7 +680,7 @@ public class Solver {
                     if (amount == 2) {
                         allMadeContribution = true;
                         if (unionOfCandidates(numInCellsRow(row, num1, num2)) && allMadeContribution) {
-                            System.out.println("HSR hidden pair " + (num1 + 1) + "," + (num2 + 1) + " in row " + row);
+//                            System.out.println("HSR hidden pair " + (num1 + 1) + "," + (num2 + 1) + " in row " + row);
 
                             removeForHiddenSubsetRow(row, num1, num2);
                         }
@@ -545,7 +689,7 @@ public class Solver {
                             if (amount == 3) {
                                 allMadeContribution = true;
                                 if (unionOfCandidates(numInCellsRow(row, num1, num2, num3)) && allMadeContribution) {
-                                    System.out.println("HSR hidden triple " + (num1 + 1) + "," + (num2 + 1) + "," + (num3 + 1) + " in row " + row);
+//                                    System.out.println("HSR hidden triple " + (num1 + 1) + "," + (num2 + 1) + "," + (num3 + 1) + " in row " + row);
 
                                     removeForHiddenSubsetRow(row, num1, num2, num3);
                                 }
@@ -555,7 +699,7 @@ public class Solver {
                                     // create method which unions the arrays and returns true if the boolean array result has only 4 true's
                                     allMadeContribution = true;
                                     if (unionOfCandidates(numInCellsRow(row, num1, num2, num3, num4)) && allMadeContribution) {
-                                        System.out.println("HSR hidden quad " + (num1 + 1) + "," + (num2 + 1) + "," + (num3 + 1) + "," + (num4 + 1) + " in row " + row);
+//                                        System.out.println("HSR hidden quad " + (num1 + 1) + "," + (num2 + 1) + "," + (num3 + 1) + "," + (num4 + 1) + " in row " + row);
 
                                         removeForHiddenSubsetRow(row, num1, num2, num3, num4);
                                     }
@@ -1371,11 +1515,14 @@ public class Solver {
                     nakedSubsetCol(cell.col);
                     hiddenSubsetCol(cell.col);
                 }
+                if (cell.pos == 80) {
+                    xWingRow();
+                    xWingCol();
+                }
             }
         }
 
         if (!change) {
-            System.out.println(passes);
             return grid;
         }
         passes++;
@@ -1385,32 +1532,22 @@ public class Solver {
 
     public static void main(String[] args) {
 //        initialise(puzzle);
-        initialise(automorphic);
+//        initialise(automorphic);
 //        initialise(medium);
 //        initialise(hardestPuzzle);
 //        initialise(rowBlockTest);
 //        initialise(blockBlockRowTest);
 //        initialise(blockBlockColTest);
 //        initialise(empty);
+//        initialise(xWingRow);
+        initialise(xWingCol);
 
         printGrid();
-
-//        setCandsForHiddenTriple(4);
-
-//        printAllCands(4, 13, 22, 31, 40, 49, 58, 67, 76);
-
-//        hiddenSubsetCol(4);
-
-//        printAllCands(4, 13, 22, 31, 40, 49, 58, 67, 76);
         solve(grid);
 //        backTrack(grid);
         printGrid();
-
 //        printAllCands();
-
-//        System.out.println(passes);
-//        printAllCands(15, 16, 17);
-
+        System.out.println(passes);
     }
 
     private static int lastEmpty;
@@ -1450,5 +1587,4 @@ public class Solver {
             }
         }
     }
-
 }
