@@ -14,10 +14,12 @@ public class Cell {
     }
 
     void boxCalc() {
+        /*Calculates which box within the puzzle the cell belongs to in range 0-8.*/
         this.box = ((row / 3) * 3 + (col / 3));
     }
 
     void findAns(){
+        /*If the cell has one candidate set that as the answer.*/
         int count = 0;
         int num = 0;
         for(int i = 0; i < 9; i++) {
@@ -34,10 +36,12 @@ public class Cell {
     }
 
     void clearC(){
+        /*Clears all candidates for the cell.*/
         candidates = new boolean[]{false, false, false, false, false, false, false, false, false};
     }
 
     void printC(){
+        /*Prints all the candidates for the cell.*/
         if(ans == 0){
             System.out.println("Cell " + pos + " candidates are: ");
             for(int i = 0; i < 9; i++){
@@ -50,5 +54,16 @@ public class Cell {
             System.out.println("Cell " + pos + " has ans " + ans);
         }
         System.out.println("");
+    }
+
+    int candCount() {
+        /*Counts the number of possible candidates in the cell.*/
+        int count = 0;
+        for(boolean candidate : candidates) {
+            if(candidate) {
+                count++;
+            }
+        }
+        return count;
     }
 }

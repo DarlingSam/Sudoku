@@ -222,8 +222,8 @@ public class SudokuGUI extends JFrame {
 
         JButton btnPuzzle = new JButton("Puzzle");
         btnPuzzle.addActionListener(e -> {
-//                    placePuzzle(Solver.puzzle);
-                    placePuzzle(Solver.automorphic);
+//                    placePuzzle(HCPuzzles.puzzle);
+                    placePuzzle(HCPuzzles.automorphic);
 
                 }
         );
