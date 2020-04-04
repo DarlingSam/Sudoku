@@ -6,6 +6,8 @@ import javax.swing.border.EmptyBorder;
 
 public class SudokuGUI extends JFrame {
 
+    public Solver solver = new Solver();
+
     public JTextField[][] uiCells = new JTextField[9][9];
 
     public JButton[][] cellButtons = new JButton[9][9];
@@ -41,10 +43,9 @@ public class SudokuGUI extends JFrame {
     public void toggleAllCands() {
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
-                if(!setByButton[row][col]) {
+                if (!setByButton[row][col]) {
                     toggleCands(row, col);
-                }
-                else if(setByButton[row][col]) {
+                } else if (setByButton[row][col]) {
                     setByButton[row][col] = false;
                 }
             }
@@ -67,23 +68,23 @@ public class SudokuGUI extends JFrame {
             for (int col = 0; col < 9; col++) {
                 int index = row * 9 + col;
                 if (uiCells[row][col].getText().equals("")) {
-                    Solver.grid[row][col] = new Cell(index, 0, row, col);
+                    solver.grid[row][col] = new Cell(index, 0, row, col);
                 } else {
                     int ans = Integer.parseInt(uiCells[row][col].getText());
-                    Solver.grid[row][col] = new Cell(index, ans, row, col);
+                    solver.grid[row][col] = new Cell(index, ans, row, col);
                 }
             }
         }
     }
 
     public void solve() {
-        Solver.solve(Solver.grid);
+        solver.solve(solver.grid);
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
-                if (Solver.grid[row][col].ans == 0) {
+                if (solver.grid[row][col].ans == 0) {
                     uiCells[row][col].setText("");
                 } else {
-                    String ans = Integer.toString(Solver.grid[row][col].ans);
+                    String ans = Integer.toString(solver.grid[row][col].ans);
                     uiCells[row][col].setText(ans);
                 }
             }
@@ -124,7 +125,7 @@ public class SudokuGUI extends JFrame {
         uiCells[row][col].addMouseListener(new MouseAdapter() {
             @Override
             public void mouseExited(MouseEvent e) {
-                if(!candPanes[row][col].isVisible()) {
+                if (!candPanes[row][col].isVisible()) {
                     cellButtons[row][col].setVisible(false);
                 }
                 super.mouseExited(e);
@@ -148,7 +149,7 @@ public class SudokuGUI extends JFrame {
         cellButtons[row][col].addMouseListener(new MouseAdapter() {
             @Override
             public void mouseExited(MouseEvent e) {
-                if(!candPanes[row][col].isVisible()) {
+                if (!candPanes[row][col].isVisible()) {
                     cellButtons[row][col].setVisible(false);
                 }
                 super.mouseExited(e);
@@ -161,7 +162,7 @@ public class SudokuGUI extends JFrame {
         setByButton[row][col] = false;
 
         cellButtons[row][col].addActionListener(e -> {
-            setByButton[row][col] = !setByButton[row][col];
+                    setByButton[row][col] = !setByButton[row][col];
                     toggleCands(row, col);
                 }
         );
@@ -223,7 +224,7 @@ public class SudokuGUI extends JFrame {
         JButton btnPuzzle = new JButton("Puzzle");
         btnPuzzle.addActionListener(e -> {
 //                    placePuzzle(HCPuzzles.puzzle);
-                    placePuzzle(HCPuzzles.automorphic);
+//                    placePuzzle(HCPuzzles.automorphic);
 
                 }
         );
