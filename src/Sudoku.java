@@ -26,8 +26,7 @@ public class Sudoku {
         generator.randomlyFill(grid);
         solver.printGrid(grid);
         System.out.println("||||||||||||||||||||||||||||||||||||||||||");
-//        generator.removeNumbers(grid, 56);
-        generator.removeValuesPrime(grid, 57);
+        generator.removeValues(grid, 57);
         solver.printGrid(grid);
         System.out.println("||||||||||||||||||||||||||||||||||||||||||");
         solver.backTrack(grid);

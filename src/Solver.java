@@ -5,9 +5,9 @@ public class Solver {
     /*Cell[row][col]*/
     public Cell[][] grid = new Cell[9][9];
 
-    private boolean change;
+    public boolean change;
 
-    private int passes = 0;
+    public int passes = 0;
 
     public void xWingCol(Cell[][] grid) {
         /*For every candidate look at every pair of columns where in each column they appear in every cell. */
@@ -1107,9 +1107,6 @@ public class Solver {
         int pos = 0;
         for (int row = 0; row < grid.length; row++) {
             for (int col = 0; col < grid[row].length; col++) {
-                if (puzzle[pos] == 0) {
-                    lastEmpty = pos;
-                }
                 grid[row][col] = new Cell(pos, puzzle[pos], row, col);
                 pos++;
             }
@@ -1220,33 +1217,8 @@ public class Solver {
         return solve(grid);
     }
 
-//    public static void main(String[] args) {
-////        initialise(grid, HCPuzzles.puzzle);
-////        initialise(grid, HCPuzzles.automorphic);
-////        initialise(grid, HCPuzzles.medium);
-////        initialise(grid, HCPuzzles.hardestPuzzle);
-////        initialise(grid, HCPuzzles.rowBlockTest);
-////        initialise(grid, HCPuzzles.blockBlockRowTest);
-////        initialise(grid, HCPuzzles.blockBlockColTest);
-////        initialise(grid, HCPuzzles.empty);
-////        initialise(grid, HCPuzzles.xWingRow);
-////        initialise(grid, HCPuzzles.xWingCol);
-//
-//        initialise(grid, HCPuzzles.generated2);
-//        printGrid(grid);
-////        solve(grid);
-//        backTrack(grid);
-////        everySolution(grid);
-//        printGrid(grid);
-////        printAllCands();
-////        System.out.println(passes);
-//
-//
-//    }
-
-    public int lastEmpty;
-
     public boolean isSolved(Cell[][] grid) {
+        /*If every position has a answer not equal to 0 return true.*/
         for (Cell[] cells : grid) {
             for (Cell cell : cells) {
                 if (cell.ans == 0) {
@@ -1261,23 +1233,19 @@ public class Solver {
         for (Cell[] cells : grid) {
             for (Cell cell : cells) {
                 if (cell.ans == 0) {
-                    // for every possible candidate.
+                    /*For every possible candidate.*/
                     for (int cand = 0; cand < 9; cand++) {
                         if (!checkHouses(grid, cell, cand)) {
-                            // set the cells answer to that candidate.
+                            /*Set the cells answer to that candidate. see if it leads to a solution with that candidate*/
                             cell.ans = cand + 1;
-                            // see if it leads to a solution with that candidate
                             backTrack(grid);
-                            // if it is solved return.
-//                            if (grid[lastEmpty / 9][lastEmpty % 9].ans != 0) {
-//                                return;
-//                            }
+                            /*If it did lead to a solution return.*/
                             if(isSolved(grid)) {
                                 return;
                             }
                         }
                     }
-                    // if no candidate matches set the answer back to 0 and return.
+                    /*If no candidate led to a solution set the answer back to 0 and return.*/
                     cell.ans = 0;
                     return;
                 }

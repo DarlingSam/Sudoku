@@ -2,19 +2,9 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class Generator extends Solver {
-    /*To remove numbers, use this algorithm:
-Pick a random number you haven't tried removing before
-Remove the number, run your solver with the added condition that it cannot use the removed number here
-If the solver finds a solution, you can't remove the number
-Repeat, until you have removed enough numbers (or you can't remove any more)*/
-
-    /*Have a full randomized board. Remove a number and try solve it. See which method was used to place the number back in, to attempt to track difficulty.
-     * Or see which methods were used as a result to place any number(s) back in.
-     * Keeping track using backtracking that there is only a single solution to the puzzle.*/
-
-//    public Cell[][] randBoard = new Cell[9][9];
 
     public boolean triedAll(boolean[] tried) {
+        /*Checks whether theirs still numbers it hasn't tried to remove from yet.*/
         for (boolean value : tried) {
             if (!value) {
                 return false;
@@ -23,18 +13,8 @@ Repeat, until you have removed enough numbers (or you can't remove any more)*/
         return true;
     }
 
-//    public boolean isSolved(Cell[][] grid) {
-//        for (Cell[] cells : grid) {
-//            for (Cell cell : cells) {
-//                if (cell.ans == 0) {
-//                    return false;
-//                }
-//            }
-//        }
-//        return true;
-//    }
-
     public void initialiseEmptyGrid(Cell[][] grid) {
+        /*Creates a grid of cells with 0 as every answer.*/
         int pos = 0;
         for (int row = 0; row < grid.length; row++) {
             for (int col = 0; col < grid[row].length; col++) {
@@ -49,6 +29,7 @@ Repeat, until you have removed enough numbers (or you can't remove any more)*/
     public ArrayList<Cell[][]> solutions = new ArrayList<>();
 
     public int numberOfSolutions(Cell[][] grid) {
+        /*Runs everySolutions and returns the number of solutions that it finds.*/
         everySolution(grid);
         int numOfSolutions = solutions.size();
         solutions.clear();
@@ -56,101 +37,12 @@ Repeat, until you have removed enough numbers (or you can't remove any more)*/
     }
 
     public void removeValues(Cell[][] grid, int numToRemove) {
-        Random random = new Random();
-        Cell[][] backUp = createNew(grid);
-        while (numToRemove > 0) {
-//            boolean[] tried = new boolean[]{false, false, false, false, false, false, false, false, false,
-//                    false, false, false, false, false, false, false, false, false,
-//                    false, false, false, false, false, false, false, false, false,
-//                    false, false, false, false, false, false, false, false, false,
-//                    false, false, false, false, false, false, false, false, false,
-//                    false, false, false, false, false, false, false, false, false,
-//                    false, false, false, false, false, false, false, false, false,
-//                    false, false, false, false, false, false, false, false, false,
-//                    false, false, false, false, false, false, false, false, false};
-//
-//            while (!triedAll(tried)) {
-            int rand = random.nextInt(81);
-            int row = rand / 9;
-            int col = rand % 9;
-            if (grid[row][col].ans != 0) {
-                int ans = grid[row][col].ans;
-//                System.out.println(rand);
-                grid[row][col].ans = 0;
-
-                if (numberOfSolutions(grid) == 1) {
-                    grid[row][col].ans = 0;
-                    numToRemove--;
-                } else {
-//                        tried[rand] = true;
-                    grid[row][col].ans = ans;
-                }
-            }
-//            }
-        }
-    }
-
-//    public void removeValuesPrime(Cell[][] grid, int numToRemove) {
-//        if (numberOfSolutions(grid) == 1 && amountRemoved(grid) == numToRemove) {
-//            System.out.println("                                        Here5");
-//            return;
-//        }
-//
-//        boolean[] tried = new boolean[]{false, false, false, false, false, false, false, false, false,
-//                false, false, false, false, false, false, false, false, false,
-//                false, false, false, false, false, false, false, false, false,
-//                false, false, false, false, false, false, false, false, false,
-//                false, false, false, false, false, false, false, false, false,
-//                false, false, false, false, false, false, false, false, false,
-//                false, false, false, false, false, false, false, false, false,
-//                false, false, false, false, false, false, false, false, false,
-//                false, false, false, false, false, false, false, false, false};
-//        while (!triedAll(tried)) {
-//            System.out.println("      Here1");
-//            int rand = random.nextInt(81);
-//            int row = rand / 9;
-//            int col = rand % 9;
-//            tried[rand] = true;
-//            int ans = grid[row][col].ans;
-//            if (grid[row][col].ans != 0) {
-//                System.out.println("      RANDOM " + rand);
-//                System.out.println("              Here2");
-////                int ans = grid[row][col].ans;
-//                grid[row][col].ans = 0;
-////                numToRemove--;
-//                System.out.println("                                                    NUMBER OF SOL AT HERE2 " + numberOfSolutions(grid));
-//                System.out.println("                                                    AMOUNT REMOVED HERE2 " + amountRemoved(grid));
-//                System.out.println("                                                    NUMTOREMOVE HERE2 " + numToRemove);
-//                if(numberOfSolutions(grid) > 1){
-//                    System.out.println("                     Here3");
-//                    grid[row][col].ans = ans;
-////                    numToRemove++;
-//                }
-//                else {
-//                    removeValuesPrime(grid, numToRemove);
-//                }
-//                if (numberOfSolutions(grid) == 1 && amountRemoved(grid) == numToRemove) {
-//                    System.out.println("                           Here4");
-//                    return;
-//                }
-//            }
-//            int count = 0;
-//            for(boolean thing : tried) {
-//                if(thing) {
-//                    count++;
-//                }
-//            }
-//            grid[row][col].ans = ans;
-//            System.out.println("COUNT " + count);
-//            System.out.println("AMOUNT REMOVED " + amountRemoved(grid));
-//            System.out.println("NUMBER OF SOLUTIONS " + numberOfSolutions(grid));
-//        }
-//    }
-
-    public void removeValuesPrime(Cell[][] grid, int numToRemove) {
+        /*If the number of solutions is 1 and the amount of positions with answer 0 is equal to the amount of values
+        * it was told to remove, return.*/
         if (numberOfSolutions(grid) == 1 && amountRemoved(grid) == numToRemove) {
             return;
         }
+        /*Tried keeps track of which positions we have tried removing the value from to find a unique puzzle at that point.*/
         boolean[] tried = new boolean[]{false, false, false, false, false, false, false, false, false,
                 false, false, false, false, false, false, false, false, false,
                 false, false, false, false, false, false, false, false, false,
@@ -160,26 +52,36 @@ Repeat, until you have removed enough numbers (or you can't remove any more)*/
                 false, false, false, false, false, false, false, false, false,
                 false, false, false, false, false, false, false, false, false,
                 false, false, false, false, false, false, false, false, false};
+        /*While it hasn't tried to remove from every position at this point.*/
         while (!triedAll(tried)) {
+            /*Generate a new random number up to position 81.*/
             int rand = random.nextInt(81);
-            tried[rand] = true;
-            int ans = grid[rand / 9][rand % 9].ans;
-            if (grid[rand / 9][rand % 9].ans != 0) {
+            /*If the answer at this random position isn't 0 and we haven't tried to remove from this position before.*/
+            if (grid[rand / 9][rand % 9].ans != 0 && !tried[rand]) {
+                /*Save the answer at the position and then set the answer to 0.*/
+                int ans = grid[rand / 9][rand % 9].ans;
                 grid[rand / 9][rand % 9].ans = 0;
+                /*If the number of solutions with this position set to 0 is > 1. Set the answer back. Else recursively call
+                * to remove another number from a different position.*/
                 if (numberOfSolutions(grid) > 1) {
                     grid[rand / 9][rand % 9].ans = ans;
                 } else {
-                    removeValuesPrime(grid, numToRemove);
+                    removeValues(grid, numToRemove);
                 }
+                /*If the number of solutions is 1 and the amount of positions with answer 0 is equal to the amount of values
+                 * it was told to remove, return.*/
                 if (numberOfSolutions(grid) == 1 && amountRemoved(grid) == numToRemove) {
                     return;
                 }
             }
-            grid[rand / 9][rand % 9].ans = ans;
+            /*Set that we've tried to remove the number at that position.*/
+            tried[rand] = true;
+//            grid[rand / 9][rand % 9].ans = ans;
         }
     }
 
     public int amountRemoved(Cell[][] grid) {
+        /*Returns the amount of positions with 0 as the answer.*/
         int count = 0;
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
@@ -192,6 +94,9 @@ Repeat, until you have removed enough numbers (or you can't remove any more)*/
     }
 
     public boolean isSolutionNew(Cell[][] grid) {
+        /*For every solution in solutions. It checks whether every position in the grid has the same number as
+        * every position for any of the solutions. If every position has the same number then the grid is not a
+        * new solution.*/
         for (Cell[][] solution : solutions) {
             boolean foundDifference = false;
             for (int row = 0; row < 9; row++) {
@@ -210,6 +115,7 @@ Repeat, until you have removed enough numbers (or you can't remove any more)*/
     }
 
     public Cell[][] createNew(Cell[][] grid) {
+        /*Creates a copy of the array of cells to add uniquely to the arrayList of solutions.*/
         Cell[][] newGrid = new Cell[9][9];
         int pos = 0;
         for (int row = 0; row < 9; row++) {
@@ -222,17 +128,20 @@ Repeat, until you have removed enough numbers (or you can't remove any more)*/
     }
 
     public void everySolution(Cell[][] grid) {
-        if (solutions.size() == 10) {
+        if (solutions.size() > 1) {
             return;
         }
+        /*For every cell in the grid*/
         for (Cell[] cells : grid) {
             for (Cell cell : cells) {
                 if (cell.ans == 0) {
+                    /*try find a solution with each different candidate at that position.*/
                     for (int cand = 0; cand < 9; cand++) {
                         if (!checkHouses(grid, cell, cand)) {
                             cell.ans = cand + 1;
                             everySolution(grid);
-//                            if (grid[lastEmpty / 9][lastEmpty % 9].ans != 0) {
+                            /*If this candidate leads to a solution and the solution is new add it to the
+                            * arrayList of solutions.*/
                             if (isSolved(grid) && isSolutionNew(grid)) {
                                 solutions.add(createNew(grid));
                             }
@@ -246,6 +155,8 @@ Repeat, until you have removed enough numbers (or you can't remove any more)*/
     }
 
     public void randomlyFill(Cell[][] grid) {
+        /*For every cell in the grid. Try place a random number at that position. If this random number leads to the
+        * board getting filled keep the number else try a different random number.*/
         for (Cell[] cells : grid) {
             for (Cell cell : cells) {
                 if (cell.ans == 0) {
@@ -269,41 +180,4 @@ Repeat, until you have removed enough numbers (or you can't remove any more)*/
         }
     }
 
-    public void removeNumbers(Cell[][] grid, int amount) {
-        int removed = 0;
-        Random random = new Random();
-        while (removed < amount) {
-            int rand = random.nextInt(81);
-            int row = rand / 9;
-            int col = rand % 9;
-            int ans = grid[row][col].ans;
-            if (grid[row][col].ans != 0) {
-                grid[row][col].ans = 0;
-                if (numberOfSolutions(grid) == 1) {
-                    removed++;
-                } else {
-                    grid[row][col].ans = ans;
-                }
-            }
-        }
-    }
-
-//    public static void main(String[] args) {
-//        initialiseEmptyGrid();
-//        printGrid(randBoard);
-//        System.out.println("||||||||||||||||||||||||||||||||||||||||||");
-//        randomlyFill(randBoard);
-////        System.out.println("||||||||||||||||||||||||||||||||||||||||||");
-//        printGrid(randBoard);
-//        System.out.println("||||||||||||||||||||||||||||||||||||||||||");
-////        removeValues(randBoard, 56);
-////        removeValuesPrime(randBoard, 30);
-//        removeNumbers(randBoard, 50);
-//        System.out.println("||||||||||||||||||||||||||||||||||||||||||");
-//        printGrid(randBoard);
-//        System.out.println("||||||||||||||||||||||||||||||||||||||||||");
-//        backTrack(createNew(randBoard));
-////        solve(randBoard);
-//        printGrid(randBoard);
-//    }
 }
