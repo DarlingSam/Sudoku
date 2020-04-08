@@ -30,7 +30,7 @@ public class Cell {
         }
         if(count == 1){
             num++;
-//            System.out.println("SC Setting ans for cell " + pos + " to " + num);
+            System.out.println("Answer for cell " + pos + " set to " + num);
             ans = num;
         }
     }
@@ -53,7 +53,7 @@ public class Cell {
         else {
             System.out.println("Cell " + pos + " has ans " + ans);
         }
-        System.out.println("");
+        System.out.println(" ");
     }
 
     int candCount() {

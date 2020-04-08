@@ -2,12 +2,9 @@ import java.util.ArrayList;
 
 public class Solver {
 
-    /*Cell[row][col]*/
-    public Cell[][] grid = new Cell[9][9];
+    Cell[][] grid = new Cell[9][9];
 
     public boolean change;
-
-    public int passes = 0;
 
     public void xWingCol(Cell[][] grid) {
         /*For every candidate look at every pair of columns where in each column they appear in every cell. */
@@ -54,9 +51,18 @@ public class Solver {
                                  * Then remove the candidate from every cell in each column aside from the 4 intersections.*/
                                 if (inOneCellRow1 && inOneCellRow2 && maybeExcept.size() == 4) {
                                     Cell[] exceptions = maybeExcept.toArray(new Cell[0]);
-                                    System.out.println("xWingCol removing");
-                                    removeCandInCol(grid, col1, new int[]{cand}, exceptions);
-                                    removeCandInCol(grid, col2, new int[]{cand}, exceptions);
+                                    removeCandInCol(grid, col1, new int[]{cand}, exceptions, false);
+                                    removeCandInCol(grid, col2, new int[]{cand}, exceptions, false);
+
+                                    StringBuilder output = new StringBuilder("X-Wing Column removing " + cand + " from columns " + row1 + " and " + row2 + " due to cells ");
+                                    for(int i = 0; i < 4; i++) {
+                                        if(i == 3) {
+                                            output.append("and ").append(exceptions[i].pos);
+                                        } else {
+                                            output.append(exceptions[i].pos).append(", ");
+                                        }
+                                    }
+                                    System.out.println(output);
                                 }
                             }
                         }
@@ -111,9 +117,18 @@ public class Solver {
                                  * Then remove the candidate from every cell in each row aside from the 4 intersections.*/
                                 if (inOneCellCol1 && inOneCellCol2 && maybeExcept.size() == 4) {
                                     Cell[] exceptions = maybeExcept.toArray(new Cell[0]);
-                                    System.out.println("xWingRow removing");
-                                    removeCandInRow(grid, row1, new int[]{cand}, exceptions);
-                                    removeCandInRow(grid, row2, new int[]{cand}, exceptions);
+                                    removeCandInRow(grid, row1, new int[]{cand}, exceptions, false);
+                                    removeCandInRow(grid, row2, new int[]{cand}, exceptions, false);
+
+                                    StringBuilder output = new StringBuilder("X-Wing Row removing " + cand + " from rows " + row1 + " and " + row2 + " due to cells ");
+                                    for(int i = 0; i < 4; i++) {
+                                        if(i == 3) {
+                                            output.append("and ").append(exceptions[i].pos);
+                                        } else {
+                                            output.append(exceptions[i].pos).append(", ");
+                                        }
+                                    }
+                                    System.out.println(output);
                                 }
                             }
                         }
@@ -149,12 +164,14 @@ public class Solver {
 
     public void removeForHiddenSubsetBox(Cell[][] grid, int box, int... nums) {
         /*Finds every cell in the box which which contains any one of the candidates then removes every other candidate of that cell.*/
+        boolean madeChange = false;
         Cell[] toRemoveFrom = new Cell[nums.length];
         int exPos = 0;
         for (Cell[] cells : grid) {
             for (Cell cell : cells) {
                 if (cell.box == box) {
                     boolean appeared = false;
+                    /*For each cell in the box, if any of the candidates appeared*/
                     for (int num : nums) {
                         if (cell.candidates[num]) {
                             if (!appeared) {
@@ -163,6 +180,7 @@ public class Solver {
                             }
                         }
                     }
+                    /*Add them to cells to have other candidates removed*/
                     if (appeared) {
                         toRemoveFrom[exPos - 1] = cell;
                     }
@@ -170,6 +188,7 @@ public class Solver {
             }
         }
         for (Cell cellR : toRemoveFrom) {
+            /*For every candidate of the cells to remove from, if the candidate isn't one of the hidden subset remove the candidate.*/
             for (int cand = 0; cand < 9; cand++) {
                 boolean found = false;
                 for (int num : nums) {
@@ -179,11 +198,30 @@ public class Solver {
                     }
                 }
                 if (!found && cellR.candidates[cand]) {
-//                    System.out.println("HSB removing " + (cand + 1) + " from " + cellR.pos);
                     cellR.candidates[cand] = false;
                     change = true;
+                    madeChange = true;
                 }
             }
+        }
+        if(madeChange) {
+            StringBuilder output = new StringBuilder("Hidden Subset Box size " + nums.length + " removed all candidates except ");
+            for(int i = 0; i < nums.length; i++) {
+                if(i == nums.length - 1) {
+                    output.append("and ").append(nums[i]).append(" from cells ");
+                } else {
+                    output.append(nums[i]).append(", ");
+                }
+            }
+            for(int y = 0; y < toRemoveFrom.length; y++) {
+                if(y == toRemoveFrom.length - 1) {
+                    output.append("and ").append(toRemoveFrom[y].pos);
+                } else {
+                    output.append(toRemoveFrom[y].pos).append(", ");
+                }
+            }
+            output.append(" in box ").append(box);
+            System.out.println(output);
         }
     }
 
@@ -231,7 +269,6 @@ public class Solver {
                     if (amount == 2) {
                         allMadeContribution = true;
                         if (unionOfCandidates(numInCellsBox(grid, box, num1, num2)) && allMadeContribution) {
-//                            System.out.println("HSB hidden pair " + (num1 + 1) + "," + (num2 + 1) + " in box " + box);
                             removeForHiddenSubsetBox(grid, box, num1, num2);
                         }
                     } else {
@@ -239,14 +276,12 @@ public class Solver {
                             if (amount == 3) {
                                 allMadeContribution = true;
                                 if (unionOfCandidates(numInCellsBox(grid, box, num1, num2, num3)) && allMadeContribution) {
-//                                    System.out.println("HSB hidden triple " + (num1 + 1) + "," + (num2 + 1) + "," + (num3 + 1) + " in box " + box);
                                     removeForHiddenSubsetBox(grid, box, num1, num2, num3);
                                 }
                             } else {
                                 for (int num4 = num3 + 1; num4 < 9; num4++) {
                                     allMadeContribution = true;
                                     if (unionOfCandidates(numInCellsBox(grid, box, num1, num2, num3, num4)) && allMadeContribution) {
-//                                        System.out.println("HSB hidden quad " + (num1 + 1) + "," + (num2 + 1) + "," + (num3 + 1) + "," + (num4 + 1) + " in box " + box);
                                         removeForHiddenSubsetBox(grid, box, num1, num2, num3, num4);
                                     }
                                 }
@@ -260,10 +295,12 @@ public class Solver {
 
     public void removeForHiddenSubsetCol(Cell[][] grid, int col, int... nums) {
         /*Finds every cell in the col which which contains any one of the candidates then removes every other candidate of that cell.*/
+        boolean madeChange = false;
         Cell[] toRemoveFrom = new Cell[nums.length];
         int exPos = 0;
         for (Cell[] cell : grid) {
             boolean appeared = false;
+            /*For each cell in the column, if any of the candidates appeared*/
             for (int num : nums) {
                 if (cell[col].candidates[num]) {
                     if (!appeared) {
@@ -272,11 +309,13 @@ public class Solver {
                     }
                 }
             }
+            /*Add them to cells to have other candidates removed*/
             if (appeared) {
                 toRemoveFrom[exPos - 1] = cell[col];
             }
         }
         for (Cell cell : toRemoveFrom) {
+            /*For every candidate of the cells to remove from, if the candidate isn't one of the hidden subset remove the candidate.*/
             for (int cand = 0; cand < 9; cand++) {
                 boolean found = false;
                 for (int num : nums) {
@@ -286,11 +325,30 @@ public class Solver {
                     }
                 }
                 if (!found && cell.candidates[cand]) {
-//                    System.out.println("HSC removing " + (cand + 1) + " from " + cell.pos);
                     cell.candidates[cand] = false;
                     change = true;
+                    madeChange = true;
                 }
             }
+        }
+        if(madeChange) {
+            StringBuilder output = new StringBuilder("Hidden Subset Column size " + nums.length + " removed all candidates except ");
+            for(int i = 0; i < nums.length; i++) {
+                if(i == nums.length - 1) {
+                    output.append("and ").append(nums[i]).append(" from cells ");
+                } else {
+                    output.append(nums[i]).append(", ");
+                }
+            }
+            for(int y = 0; y < toRemoveFrom.length; y++) {
+                if(y == toRemoveFrom.length - 1) {
+                    output.append("and ").append(toRemoveFrom[y].pos);
+                } else {
+                    output.append(toRemoveFrom[y].pos).append(", ");
+                }
+            }
+            output.append(" in column ").append(col);
+            System.out.println(output);
         }
     }
 
@@ -331,7 +389,6 @@ public class Solver {
                     if (amount == 2) {
                         allMadeContribution = true;
                         if (unionOfCandidates(numInCellsCol(grid, col, num1, num2)) && allMadeContribution) {
-//                            System.out.println("HSC hidden pair " + (num1 + 1) + "," + (num2 + 1) + " in col " + col);
                             removeForHiddenSubsetCol(grid, col, num1, num2);
                         }
                     } else {
@@ -339,14 +396,12 @@ public class Solver {
                             if (amount == 3) {
                                 allMadeContribution = true;
                                 if (unionOfCandidates(numInCellsCol(grid, col, num1, num2, num3)) && allMadeContribution) {
-//                                    System.out.println("HSC hidden triple " + (num1 + 1) + "," + (num2 + 1) + "," + (num3 + 1) + " in col " + col);
                                     removeForHiddenSubsetCol(grid, col, num1, num2, num3);
                                 }
                             } else {
                                 for (int num4 = num3 + 1; num4 < 9; num4++) {
                                     allMadeContribution = true;
                                     if (unionOfCandidates(numInCellsCol(grid, col, num1, num2, num3, num4)) && allMadeContribution) {
-//                                        System.out.println("HSC hidden quad " + (num1 + 1) + "," + (num2 + 1) + "," + (num3 + 1) + "," + (num4 + 1) + " in col " + col);
                                         removeForHiddenSubsetCol(grid, col, num1, num2, num3, num4);
                                     }
                                 }
@@ -360,10 +415,12 @@ public class Solver {
 
     public void removeForHiddenSubsetRow(Cell[][] grid, int row, int... nums) {
         /*Finds every cell in the row which which contains any one of the candidates then removes every other candidate of that cell.*/
+        boolean madeChange = false;
         Cell[] toRemoveFrom = new Cell[nums.length];
         int exPos = 0;
         for (Cell cell : grid[row]) {
             boolean appeared = false;
+            /*For each cell in the row, if any of the candidates appeared*/
             for (int num : nums) {
                 if (cell.candidates[num]) {
                     if (!appeared) {
@@ -372,11 +429,13 @@ public class Solver {
                     }
                 }
             }
+            /*Add them to cells to have other candidates removed*/
             if (appeared) {
                 toRemoveFrom[exPos - 1] = cell;
             }
         }
         for (Cell cell : toRemoveFrom) {
+            /*For every candidate of the cells to remove from, if the candidate isn't one of the hidden subset remove the candidate.*/
             for (int cand = 0; cand < 9; cand++) {
                 boolean found = false;
                 for (int num : nums) {
@@ -386,11 +445,30 @@ public class Solver {
                     }
                 }
                 if (!found && cell.candidates[cand]) {
-//                    System.out.println("HSR removing " + (cand + 1) + " from " + cell.pos);
                     cell.candidates[cand] = false;
                     change = true;
+                    madeChange = true;
                 }
             }
+        }
+        if(madeChange) {
+            StringBuilder output = new StringBuilder("Hidden Subset Row size " + nums.length + " removed all candidates except ");
+            for(int i = 0; i < nums.length; i++) {
+                if(i == nums.length - 1) {
+                    output.append("and ").append(nums[i]).append(" from cells ");
+                } else {
+                    output.append(nums[i]).append(", ");
+                }
+            }
+            for(int y = 0; y < toRemoveFrom.length; y++) {
+                if(y == toRemoveFrom.length - 1) {
+                    output.append("and ").append(toRemoveFrom[y].pos);
+                } else {
+                    output.append(toRemoveFrom[y].pos).append(", ");
+                }
+            }
+            output.append(" in row ").append(row);
+            System.out.println(output);
         }
     }
 
@@ -432,7 +510,6 @@ public class Solver {
                     if (amount == 2) {
                         allMadeContribution = true;
                         if (unionOfCandidates(numInCellsRow(grid, row, num1, num2)) && allMadeContribution) {
-//                            System.out.println("HSR hidden pair " + (num1 + 1) + "," + (num2 + 1) + " in row " + row);
                             removeForHiddenSubsetRow(grid, row, num1, num2);
                         }
                     } else {
@@ -440,14 +517,12 @@ public class Solver {
                             if (amount == 3) {
                                 allMadeContribution = true;
                                 if (unionOfCandidates(numInCellsRow(grid, row, num1, num2, num3)) && allMadeContribution) {
-//                                    System.out.println("HSR hidden triple " + (num1 + 1) + "," + (num2 + 1) + "," + (num3 + 1) + " in row " + row);
                                     removeForHiddenSubsetRow(grid, row, num1, num2, num3);
                                 }
                             } else {
                                 for (int num4 = num3 + 1; num4 < 9; num4++) {
                                     allMadeContribution = true;
                                     if (unionOfCandidates(numInCellsRow(grid, row, num1, num2, num3, num4)) && allMadeContribution) {
-//                                        System.out.println("HSR hidden quad " + (num1 + 1) + "," + (num2 + 1) + "," + (num3 + 1) + "," + (num4 + 1) + " in row " + row);
                                         removeForHiddenSubsetRow(grid, row, num1, num2, num3, num4);
                                     }
                                 }
@@ -459,7 +534,7 @@ public class Solver {
         }
     }
 
-    public void removeCandInBox(Cell[][] grid, int box, int[] cands, Cell[] exceptions) {
+    public void removeCandInBox(Cell[][] grid, int box, int[] cands, Cell[] exceptions, boolean print) {
         /*For every cell in the box, if it is not an exception. Remove all cands from the cand array from that cell.*/
         boolean madeChange = false;
         for (Cell[] cells : grid) {
@@ -475,7 +550,6 @@ public class Solver {
                     if (!isExcept) {
                         for (int cand : cands) {
                             if (cell.ans == 0 && cell.candidates[cand]) {
-                                System.out.println("NSB removing " + (cand + 1) + " from " + cell.pos);
                                 cell.candidates[cand] = false;
                                 change = true;
                                 madeChange = true;
@@ -485,15 +559,26 @@ public class Solver {
                 }
             }
         }
-        if (madeChange) {
-            System.out.println("NSB size " + cands.length + " box " + box + " cands");
-            for (int cand : cands) {
-                System.out.println(cand + 1);
+        if(madeChange && print) {
+            StringBuilder output = new StringBuilder("Naked Subset Box  size " + cands.length + " removing ");
+            for(int i = 0; i < cands.length; i++) {
+                if(i == cands.length - 1) {
+                    output.append("and ").append(cands[i]).append(" from cells ");
+                }
+                else {
+                    output.append(cands[i]).append(", ");
+                }
             }
-            System.out.println("exceptions");
-            for (Cell exception : exceptions) {
-                System.out.println(exception.pos);
+            for(int y = 0; y < exceptions.length; y++) {
+                if(y == exceptions.length - 1) {
+                    output.append("and ").append(exceptions[y].pos);
+                }
+                else {
+                    output.append(exceptions[y].pos).append(", ");
+                }
             }
+            output.append(" in box ").append(box);
+            System.out.println(output);
         }
     }
 
@@ -529,7 +614,7 @@ public class Solver {
                 }
                 ArrayList<Cell> subset = new ArrayList<>();
                 subset.add(cell);
-                /*For every other cell in the same column, if the cell has no candidates belonging to the initial cell
+                /*For every other cell in the same column, if the cell has only candidates belonging to the initial cell
                  * add that cell to the subset of cells list.*/
                 for (Cell[] cells : grid) {
                     for (Cell cellC : cells) {
@@ -553,13 +638,13 @@ public class Solver {
                  * cell in the column.*/
                 if (subset.size() == size) {
                     Cell[] exceptions = subset.toArray(new Cell[0]);
-                    removeCandInBox(grid, box, cands, exceptions);
+                    removeCandInBox(grid, box, cands, exceptions, true);
                 }
             }
         }
     }
 
-    public void removeCandInCol(Cell[][] grid, int col, int[] cands, Cell[] exceptions) {
+    public void removeCandInCol(Cell[][] grid, int col, int[] cands, Cell[] exceptions, boolean print) {
         /*For every cell in the column, if it is not an exception. Remove all cands from the cand array from that cell.*/
         boolean madeChange = false;
         for (Cell[] cell : grid) {
@@ -573,7 +658,6 @@ public class Solver {
             if (!isExcept) {
                 for (int cand : cands) {
                     if (cell[col].ans == 0 && cell[col].candidates[cand]) {
-                        System.out.println("NSC removing " + (cand + 1) + " from " + cell[col].pos);
                         cell[col].candidates[cand] = false;
                         change = true;
                         madeChange = true;
@@ -581,15 +665,26 @@ public class Solver {
                 }
             }
         }
-        if (madeChange) {
-            System.out.println("NSC size " + cands.length + " col " + col + " cands");
-            for (int cand : cands) {
-                System.out.println(cand + 1);
+        if(madeChange && print) {
+            StringBuilder output = new StringBuilder("Naked Subset Column " + cands.length + " removing ");
+            for(int i = 0; i < cands.length; i++) {
+                if(i == cands.length - 1) {
+                    output.append("and ").append(cands[i]).append(" from cells ");
+                }
+                else {
+                    output.append(cands[i]).append(", ");
+                }
             }
-            System.out.println("exceptions");
-            for (Cell exception : exceptions) {
-                System.out.println(exception.pos);
+            for(int y = 0; y < exceptions.length; y++) {
+                if(y == exceptions.length - 1) {
+                    output.append("and ").append(exceptions[y].pos);
+                }
+                else {
+                    output.append(exceptions[y].pos).append(", ");
+                }
             }
+            output.append(" in column ").append(col);
+            System.out.println(output);
         }
     }
 
@@ -621,7 +716,7 @@ public class Solver {
                 }
                 ArrayList<Cell> subset = new ArrayList<>();
                 subset.add(cell);
-                /*For every other cell in the same column, if the cell has no candidates belonging to the initial cell
+                /*For every other cell in the same column, if the cell has only candidates belonging to the initial cell
                  * add that cell to the subset of cells list.*/
                 for (Cell[] cellC : grid) {
                     if (cellC[col].ans == 0 && cellC[col].pos != cell.pos) {
@@ -641,14 +736,14 @@ public class Solver {
                  * cell in the column.*/
                 if (subset.size() == size) {
                     Cell[] exceptions = subset.toArray(new Cell[0]);
-                    removeCandInCol(grid, col, cands, exceptions);
+                    removeCandInCol(grid, col, cands, exceptions, true);
                 }
             }
         }
 
     }
 
-    public void removeCandInRow(Cell[][] grid, int row, int[] cands, Cell[] exceptions) {
+    public void removeCandInRow(Cell[][] grid, int row, int[] cands, Cell[] exceptions, boolean print) {
         /*For every cell in the row, if it is not an exception. Remove all cands from the cand array from that cell.*/
         boolean madeChange = false;
         for (Cell cell : grid[row]) {
@@ -662,7 +757,6 @@ public class Solver {
             if (!isExcept) {
                 for (int cand : cands) {
                     if (cell.ans == 0 && cell.candidates[cand]) {
-                        System.out.println("NSR removing " + (cand + 1) + " from " + cell.pos);
                         cell.candidates[cand] = false;
                         change = true;
                         madeChange = true;
@@ -670,15 +764,26 @@ public class Solver {
                 }
             }
         }
-        if (madeChange) {
-            System.out.println("NSR size " + cands.length + " row " + row + " cands");
-            for (int cand : cands) {
-                System.out.println(cand + 1);
+        if(madeChange && print) {
+            StringBuilder output = new StringBuilder("Naked Subset Row " + cands.length + " removing ");
+            for(int i = 0; i < cands.length; i++) {
+                if(i == cands.length - 1) {
+                    output.append("and ").append(cands[i]).append(" from cells ");
+                }
+                else {
+                    output.append(cands[i]).append(", ");
+                }
             }
-            System.out.println("exceptions");
-            for (Cell exception : exceptions) {
-                System.out.println(exception.pos);
+            for(int y = 0; y < exceptions.length; y++) {
+                if(y == exceptions.length - 1) {
+                    output.append("and ").append(exceptions[y].pos);
+                }
+                else {
+                    output.append(exceptions[y].pos).append(", ");
+                }
             }
+            output.append(" in row ").append(row);
+            System.out.println(output);
         }
     }
 
@@ -710,7 +815,7 @@ public class Solver {
                 }
                 ArrayList<Cell> subset = new ArrayList<>();
                 subset.add(cell);
-                /*For every other cell in the same row, if the cell has no candidates belonging to the initial cell
+                /*For every other cell in the same row, if the cell has only candidates belonging to the initial cell
                  * add that cell to the subset of cells list.*/
                 for (Cell cellC : grid[row]) {
                     if (cellC.ans == 0 && cellC.pos != cell.pos) {
@@ -730,7 +835,7 @@ public class Solver {
                  * cell in the row.*/
                 if (subset.size() == size) {
                     Cell[] exceptions = subset.toArray(new Cell[0]);
-                    removeCandInRow(grid, row, cands, exceptions);
+                    removeCandInRow(grid, row, cands, exceptions, true);
                 }
             }
         }
@@ -824,21 +929,15 @@ public class Solver {
                 if (countColOccur[0] < 3 && countColOccur[0] > 0 && countColOccur[1] < 3 && countColOccur[1] > 0) {
                     /*If the columns they appeared in are the same then remove them from the same columns in the third box.*/
                     if (boxCol[0] == boxCol[2] && boxCol[1] == boxCol[3]) {
-//                        System.out.println(cell.pos + " " + (cand + 1));
-//                        System.out.println("box 1 and box 2 are the same so remove from box 3");
-                        removeForBlockBlockColInteraction(grid, 2, cell.box % 3, boxCol[0], boxCol[1], cand);
+                        removeForBlockBlockColInteraction(grid,2, cell.box % 3, boxCol[0], boxCol[1], cand);
                     }
                 } else if (countColOccur[0] < 3 && countColOccur[0] > 0 && countColOccur[2] < 3 && countColOccur[2] > 0) {
                     if (boxCol[0] == boxCol[4] && boxCol[1] == boxCol[5]) {
-//                        System.out.println(cell.pos + " " + (cand + 1));
-//                        System.out.println("box 1 and box 3 are the same so remove from box 2");
-                        removeForBlockBlockColInteraction(grid, 1, cell.box % 3, boxCol[0], boxCol[1], cand);
+                        removeForBlockBlockColInteraction(grid,1, cell.box % 3, boxCol[0], boxCol[1], cand);
                     }
                 } else if (countColOccur[1] < 3 && countColOccur[1] > 0 && countColOccur[2] < 3 && countColOccur[2] > 0) {
                     if (boxCol[2] == boxCol[4] && boxCol[3] == boxCol[5]) {
-//                        System.out.println(cell.pos + " " + (cand + 1));
-//                        System.out.println("box 2 and box 3 are the same so remove from box 1");
-                        removeForBlockBlockColInteraction(grid, 0, cell.box % 3, boxCol[2], boxCol[3], cand);
+                        removeForBlockBlockColInteraction(grid,0, cell.box % 3, boxCol[2], boxCol[3], cand);
                     }
                 }
             }
@@ -846,6 +945,8 @@ public class Solver {
     }
 
     public void removeForBlockBlockColInteraction(Cell[][] grid, int box, int boxCol, int col1, int col2, int cand) {
+        boolean madeChange = false;
+        ArrayList<Cell> rf = new ArrayList<>();
         for (Cell[] cells : grid) {
             for (Cell cell : cells) {
                 /*If the cell is in the box within the boxCol we are removing from ((cell.box / 3) == box)
@@ -853,12 +954,27 @@ public class Solver {
                 if (cell.ans == 0 && cell.box / 3 == box && cell.candidates[cand] && cell.box % 3 == boxCol) {
                     /*If the cell is in either of the columns we are removing from remove the candidate.*/
                     if (cell.col % 3 == col1 || cell.col % 3 == col2) {
-//                        System.out.println("BlockBlockColInteraction removing " + (cand + 1) + " from " + cellC.pos);
                         cell.candidates[cand] = false;
                         change = true;
+                        madeChange = true;
+                        rf.add(cell);
                     }
                 }
             }
+        }
+        if(madeChange) {
+            Cell[] removedFrom = rf.toArray(new Cell[0]);
+            StringBuilder output = new StringBuilder("Block Block Column Interaction removing " + cand + " from ");
+            for(int i = 0; i < removedFrom.length; i++) {
+                if(i == removedFrom.length - 1) {
+                    output.append("and ").append(removedFrom[i].pos);
+                }
+                else {
+                    output.append(removedFrom[i].pos).append(", ");
+                }
+            }
+            output.append(" due to columns ").append(col1).append(" and ").append(col2);
+            System.out.println(output);
         }
     }
 
@@ -950,21 +1066,15 @@ public class Solver {
                 if (countRowOccur[0] < 3 && countRowOccur[0] > 0 && countRowOccur[1] < 3 && countRowOccur[1] > 0) {
                     /*If the rows they appeared in are the same then remove them from the same rows in the third box.*/
                     if (boxRow[0] == boxRow[2] && boxRow[1] == boxRow[3]) {
-//                        System.out.println(cell.pos + " " + (cand + 1));
-//                        System.out.println("box 1 and box 2 are the same so remove from box 3");
-                        removeForBlockBlockRowInteraction(grid, 2, cell.box / 3, boxRow[0], boxRow[1], cand);
+                        removeForBlockBlockRowInteraction(grid,2, cell.box / 3, boxRow[0], boxRow[1], cand);
                     }
                 } else if (countRowOccur[0] < 3 && countRowOccur[0] > 0 && countRowOccur[2] < 3 && countRowOccur[2] > 0) {
                     if (boxRow[0] == boxRow[4] && boxRow[1] == boxRow[5]) {
-//                        System.out.println(cell.pos + " " + (cand + 1));
-//                        System.out.println("box 1 and box 3 are the same so remove from box 2");
-                        removeForBlockBlockRowInteraction(grid, 1, cell.box / 3, boxRow[0], boxRow[1], cand);
+                        removeForBlockBlockRowInteraction(grid,1, cell.box / 3, boxRow[0], boxRow[1], cand);
                     }
                 } else if (countRowOccur[1] < 3 && countRowOccur[1] > 0 && countRowOccur[2] < 3 && countRowOccur[2] > 0) {
                     if (boxRow[2] == boxRow[4] && boxRow[3] == boxRow[5]) {
-//                        System.out.println(cell.pos + " " + (cand + 1));
-//                        System.out.println("box 2 and box 3 are the same so remove from box 1");
-                        removeForBlockBlockRowInteraction(grid, 0, cell.box / 3, boxRow[2], boxRow[3], cand);
+                        removeForBlockBlockRowInteraction(grid,0, cell.box / 3, boxRow[2], boxRow[3], cand);
                     }
                 }
             }
@@ -972,18 +1082,35 @@ public class Solver {
     }
 
     public void removeForBlockBlockRowInteraction(Cell[][] grid, int box, int boxRow, int row1, int row2, int cand) {
+        boolean madeChange = false;
+        ArrayList<Cell> rf = new ArrayList<>();
         for (Cell[] cells : grid) {
             for (Cell cell : cells) {
                 /*If the cell is in the box within the boxRow we are removing from ((cell.box % 3) == box)
                  * and that box is in the same boxRow we are removing from ((cell.box / 3) == boxRow)*/
                 if (cell.ans == 0 && cell.box % 3 == box && cell.candidates[cand] && cell.box / 3 == boxRow) {
                     if (cell.row % 3 == row1 || cell.row % 3 == row2) {
-//                        System.out.println("BlockBlockRowInteraction removing " + (cand + 1) + " from " + cellC.pos);
                         cell.candidates[cand] = false;
                         change = true;
+                        madeChange = true;
+                        rf.add(cell);
                     }
                 }
             }
+        }
+        if(madeChange) {
+            Cell[] removedFrom = rf.toArray(new Cell[0]);
+            StringBuilder output = new StringBuilder("Block Block Row Interaction removing " + cand + " from ");
+            for(int i = 0; i < removedFrom.length; i++) {
+                if(i == removedFrom.length - 1) {
+                    output.append("and ").append(removedFrom[i].pos);
+                }
+                else {
+                    output.append(removedFrom[i].pos).append(", ");
+                }
+            }
+            output.append(" due to rows ").append(row1).append(" and ").append(row2);
+            System.out.println(output);
         }
     }
 
@@ -1023,14 +1150,31 @@ public class Solver {
     }
 
     public void removeCandInRowNotBox(Cell[][] grid, Cell cell, int cand, Cell simCell) {
+        boolean madeChange = false;
+        ArrayList<Cell> rf = new ArrayList<>();
         /*For every cell in the row*/
         for (Cell cells : grid[cell.row]) {
             /*If the cell has the candidate and is not in the same box, remove the candidate from the cell*/
             if (cells.candidates[cand] && cells.box != cell.box) {
-//                System.out.println("Removing " + (cand + 1) + " from " + cells.pos);
                 cells.candidates[cand] = false;
                 change = true;
+                madeChange = true;
+                rf.add(cells);
             }
+        }
+        if(madeChange) {
+            Cell[] removedFrom = rf.toArray(new Cell[0]);
+            StringBuilder output = new StringBuilder("Row Block interaction removing " + cand + " from ");
+            for(int i = 0; i < removedFrom.length; i++) {
+                if(i == removedFrom.length - 1) {
+                    output.append("and ").append(removedFrom[i].pos);
+                }
+                else {
+                    output.append(removedFrom[i].pos).append(", ");
+                }
+            }
+            output.append(" due to cells ").append(cell.pos).append(" and ").append(simCell.pos);
+            System.out.println(output);
         }
     }
 
@@ -1064,19 +1208,35 @@ public class Solver {
                 /*Remove the candidate from every other cell in the column that is not in the same box as the original cell.*/
                 removeCandInColNotBox(grid, cell, cand, simCell);
             }
-
         }
     }
 
     public void removeCandInColNotBox(Cell[][] grid, Cell cell, int cand, Cell simCell) {
+        boolean madeChange = false;
+        ArrayList<Cell> rf = new ArrayList<>();
         /*For every cell in the column*/
         for (Cell[] cells : grid) {
             /*If the cell has the candidate and is not in the same box, remove the candidate from the cell*/
             if (cells[cell.col].candidates[cand] && cells[cell.col].box != cell.box) {
-//                System.out.println("Removing " + (cand + 1) + " from " + cells[cell.col].pos);
                 cells[cell.col].candidates[cand] = false;
                 change = true;
+                madeChange = true;
+                rf.add(cells[cell.col]);
             }
+        }
+        if(madeChange) {
+            Cell[] removedFrom = rf.toArray(new Cell[0]);
+            StringBuilder output = new StringBuilder("Row Column interaction removing " + cand + " from ");
+            for(int i = 0; i < removedFrom.length; i++) {
+                if(i == removedFrom.length - 1) {
+                    output.append("and ").append(removedFrom[i].pos);
+                }
+                else {
+                    output.append(removedFrom[i].pos).append(", ");
+                }
+            }
+            output.append(" due to cells ").append(cell.pos).append(" and ").append(simCell.pos);
+            System.out.println(output);
         }
     }
 
@@ -1113,11 +1273,22 @@ public class Solver {
         }
     }
 
+    public void initialiseEmptyGrid(Cell[][] grid) {
+        /*Creates a grid of cells with 0 as every answer.*/
+        int pos = 0;
+        for (int row = 0; row < grid.length; row++) {
+            for (int col = 0; col < grid[row].length; col++) {
+                grid[row][col] = new Cell(pos, 0, row, col);
+                pos++;
+            }
+        }
+    }
+
     public void soleCandidate(Cell[][] grid, Cell cell) {
         /*If any cell in the row, column or box has the candidate as its answer. Remove that candidate from the cell.*/
         for (int cand = 0; cand < 9; cand++) {
             if (cell.candidates[cand] && checkHouses(grid, cell, cand)) {
-//                System.out.println("Removing from " + cell.pos + " candidate " + (cand + 1));
+                System.out.println("Sole Candidate removing from " + cell.pos + " candidate " + (cand + 1));
                 cell.candidates[cand] = false;
                 change = true;
             }
@@ -1129,7 +1300,7 @@ public class Solver {
          * candidate.*/
         for (int cand = 0; cand < 9; cand++) {
             if (cell.candidates[cand] && !checkHousesCand(grid, cell, cand)) {
-//                System.out.println("UC Setting ans for cell " + cell.pos + " to " + (cand + 1));
+                System.out.println("Unique Candidate Setting ans for cell " + cell.pos + " to " + (cand + 1));
                 cell.ans = (cand + 1);
                 cell.clearC();
                 change = true;
@@ -1179,41 +1350,95 @@ public class Solver {
         }
     }
 
-    public Cell[][] solve(Cell[][] grid) {
+    public boolean[] difficulty = new boolean[]{false, false};
+
+    public void resetDifficulty() {
+        difficulty = new boolean[]{false, false};
+    }
+
+    public String getDifficulty() {
+        for (int diff = 0; diff < 2; diff++) {
+            if (diff == 0 && difficulty[diff]) {
+                resetDifficulty();
+                return "HARD";
+            } else if (diff == 1 && difficulty[diff]) {
+                resetDifficulty();
+                return "MEDIUM";
+            }
+        }
+        resetDifficulty();
+        return "EASY";
+    }
+
+    public Cell[][] easySolve(Cell[][] grid) {
         change = false;
         for (Cell[] cells : grid) {
             for (Cell cell : cells) {
                 if (cell.ans == 0) {
                     soleCandidate(grid, cell);
                     uniqueCandidate(grid, cell);
-                    rowBlockInteraction(grid, cell);
-                    colBlockInteraction(grid, cell);
-                    blockBlockRowInteraction(grid, cell);
-                    blockBlockColInteraction(grid, cell);
                     cell.findAns();
-                }
-                if (cell.pos % 3 == 2 && cell.row % 3 == 2) {
-                    nakedSubsetBox(grid, cell.box);
-                    hiddenSubsetBox(grid, cell.box);
-                }
-                if (cell.pos % 9 == 8) {
-                    nakedSubsetRow(grid, cell.row);
-                    hiddenSubsetRow(grid, cell.row);
-                }
-                if (cell.pos / 9 == 8) {
-                    nakedSubsetCol(grid, cell.col);
-                    hiddenSubsetCol(grid, cell.col);
-                }
-                if (cell.pos == 80) {
-                    xWingRow(grid);
-                    xWingCol(grid);
                 }
             }
         }
         if (!change) {
             return grid;
         }
-        passes++;
+        return easySolve(grid);
+    }
+
+    public Cell[][] mediumSolve(Cell[][] grid) {
+        change = false;
+        for (Cell[] cells : grid) {
+            for (Cell cell : cells) {
+                if (cell.ans == 0) {
+                    rowBlockInteraction(grid, cell);
+                    colBlockInteraction(grid, cell);
+                    blockBlockRowInteraction(grid, cell);
+                    blockBlockColInteraction(grid, cell);
+                    if (cell.pos % 3 == 2 && cell.row % 3 == 2) {
+                        nakedSubsetBox(grid, cell.box);
+                        hiddenSubsetBox(grid, cell.box);
+                    }
+                    if (cell.pos % 9 == 8) {
+                        nakedSubsetRow(grid, cell.row);
+                        hiddenSubsetRow(grid, cell.row);
+
+                    }
+                    if (cell.pos / 9 == 8) {
+                        nakedSubsetCol(grid, cell.col);
+                        hiddenSubsetCol(grid, cell.col);
+                    }
+                    if (cell.pos == 80) {
+                        xWingRow(grid);
+                        xWingCol(grid);
+                    }
+                    cell.findAns();
+                }
+            }
+        }
+        if (!change) {
+            return grid;
+        }
+        difficulty[1] = true;
+        return mediumSolve(grid);
+    }
+
+    public Cell[][] solve(Cell[][] grid) {
+        change = false;
+        easySolve(grid);
+        if (!change) {
+            mediumSolve(grid);
+        }
+        if (!change) {
+            if (!isSolved(grid)) {
+                if (amountRemoved(grid) > 10) {
+                    difficulty[0] = true;
+                }
+                backTrack(grid);
+            }
+            return grid;
+        }
         return solve(grid);
     }
 
@@ -1229,6 +1454,19 @@ public class Solver {
         return true;
     }
 
+    public int amountRemoved(Cell[][] grid) {
+        /*Returns the amount of positions with 0 as the answer.*/
+        int count = 0;
+        for (int row = 0; row < 9; row++) {
+            for (int col = 0; col < 9; col++) {
+                if (grid[row][col].ans == 0) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
     public void backTrack(Cell[][] grid) {
         for (Cell[] cells : grid) {
             for (Cell cell : cells) {
@@ -1240,7 +1478,7 @@ public class Solver {
                             cell.ans = cand + 1;
                             backTrack(grid);
                             /*If it did lead to a solution return.*/
-                            if(isSolved(grid)) {
+                            if (isSolved(grid)) {
                                 return;
                             }
                         }

@@ -16,23 +16,11 @@ public class Sudoku {
 
         Solver solver = new Solver();
         HCPuzzles hcPuzzles = new HCPuzzles();
-        Generator generator = new Generator();
+        FileManager fileManager = new FileManager();
+        Generator generator = new Generator(fileManager);
 
         Cell[][] grid = new Cell[9][9];
 
-        generator.initialiseEmptyGrid(grid);
-        solver.printGrid(grid);
-        System.out.println("||||||||||||||||||||||||||||||||||||||||||");
-        generator.randomlyFill(grid);
-        solver.printGrid(grid);
-        System.out.println("||||||||||||||||||||||||||||||||||||||||||");
-        generator.removeValues(grid, 57);
-        solver.printGrid(grid);
-        System.out.println("||||||||||||||||||||||||||||||||||||||||||");
-        solver.backTrack(grid);
-        solver.printGrid(grid);
-        System.out.println("||||||||||||||||||||||||||||||||||||||||||");
-
-
+        generator.generateSet(grid);
     }
 }

@@ -1,7 +1,12 @@
 import java.util.ArrayList;
 import java.util.Random;
 
-public class Generator extends Solver {
+public class Generator extends Solver{
+    public FileManager fm;
+
+    Generator(FileManager fileManager) {
+        this.fm = fileManager;
+    }
 
     public boolean triedAll(boolean[] tried) {
         /*Checks whether theirs still numbers it hasn't tried to remove from yet.*/
@@ -11,17 +16,6 @@ public class Generator extends Solver {
             }
         }
         return true;
-    }
-
-    public void initialiseEmptyGrid(Cell[][] grid) {
-        /*Creates a grid of cells with 0 as every answer.*/
-        int pos = 0;
-        for (int row = 0; row < grid.length; row++) {
-            for (int col = 0; col < grid[row].length; col++) {
-                grid[row][col] = new Cell(pos, 0, row, col);
-                pos++;
-            }
-        }
     }
 
     public Random random = new Random();
@@ -76,21 +70,7 @@ public class Generator extends Solver {
             }
             /*Set that we've tried to remove the number at that position.*/
             tried[rand] = true;
-//            grid[rand / 9][rand % 9].ans = ans;
         }
-    }
-
-    public int amountRemoved(Cell[][] grid) {
-        /*Returns the amount of positions with 0 as the answer.*/
-        int count = 0;
-        for (int row = 0; row < 9; row++) {
-            for (int col = 0; col < 9; col++) {
-                if (grid[row][col].ans == 0) {
-                    count++;
-                }
-            }
-        }
-        return count;
     }
 
     public boolean isSolutionNew(Cell[][] grid) {
@@ -180,4 +160,23 @@ public class Generator extends Solver {
         }
     }
 
+    public void generateSet(Cell[][] grid) {
+        int puzzlesCreated = 0;
+        while(puzzlesCreated < 300) {
+            for(int emptySpaces = 30; emptySpaces <= 55; emptySpaces++) {
+                initialiseEmptyGrid(grid);
+                randomlyFill(grid);
+                removeValues(grid, emptySpaces);
+                Cell[][] emptyGrid = createNew(grid);
+                solve(grid);
+                String difficulty = getDifficulty();
+                System.out.println("Difficulty " + difficulty);
+                System.out.println("Puzzles created " + puzzlesCreated + " empty spaces " + emptySpaces);
+                if(fm.lineCount(difficulty) < 100) {
+                    puzzlesCreated++;
+                    fm.write(difficulty, emptyGrid);
+                }
+            }
+        }
+    }
 }
