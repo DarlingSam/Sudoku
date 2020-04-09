@@ -55,8 +55,8 @@ public class Solver {
                                     removeCandInCol(grid, col2, new int[]{cand}, exceptions, false);
 
                                     StringBuilder output = new StringBuilder("X-Wing Column removing " + cand + " from columns " + row1 + " and " + row2 + " due to cells ");
-                                    for(int i = 0; i < 4; i++) {
-                                        if(i == 3) {
+                                    for (int i = 0; i < 4; i++) {
+                                        if (i == 3) {
                                             output.append("and ").append(exceptions[i].pos);
                                         } else {
                                             output.append(exceptions[i].pos).append(", ");
@@ -121,8 +121,8 @@ public class Solver {
                                     removeCandInRow(grid, row2, new int[]{cand}, exceptions, false);
 
                                     StringBuilder output = new StringBuilder("X-Wing Row removing " + cand + " from rows " + row1 + " and " + row2 + " due to cells ");
-                                    for(int i = 0; i < 4; i++) {
-                                        if(i == 3) {
+                                    for (int i = 0; i < 4; i++) {
+                                        if (i == 3) {
                                             output.append("and ").append(exceptions[i].pos);
                                         } else {
                                             output.append(exceptions[i].pos).append(", ");
@@ -204,17 +204,17 @@ public class Solver {
                 }
             }
         }
-        if(madeChange) {
+        if (madeChange) {
             StringBuilder output = new StringBuilder("Hidden Subset Box size " + nums.length + " removed all candidates except ");
-            for(int i = 0; i < nums.length; i++) {
-                if(i == nums.length - 1) {
+            for (int i = 0; i < nums.length; i++) {
+                if (i == nums.length - 1) {
                     output.append("and ").append(nums[i]).append(" from cells ");
                 } else {
                     output.append(nums[i]).append(", ");
                 }
             }
-            for(int y = 0; y < toRemoveFrom.length; y++) {
-                if(y == toRemoveFrom.length - 1) {
+            for (int y = 0; y < toRemoveFrom.length; y++) {
+                if (y == toRemoveFrom.length - 1) {
                     output.append("and ").append(toRemoveFrom[y].pos);
                 } else {
                     output.append(toRemoveFrom[y].pos).append(", ");
@@ -331,17 +331,17 @@ public class Solver {
                 }
             }
         }
-        if(madeChange) {
+        if (madeChange) {
             StringBuilder output = new StringBuilder("Hidden Subset Column size " + nums.length + " removed all candidates except ");
-            for(int i = 0; i < nums.length; i++) {
-                if(i == nums.length - 1) {
+            for (int i = 0; i < nums.length; i++) {
+                if (i == nums.length - 1) {
                     output.append("and ").append(nums[i]).append(" from cells ");
                 } else {
                     output.append(nums[i]).append(", ");
                 }
             }
-            for(int y = 0; y < toRemoveFrom.length; y++) {
-                if(y == toRemoveFrom.length - 1) {
+            for (int y = 0; y < toRemoveFrom.length; y++) {
+                if (y == toRemoveFrom.length - 1) {
                     output.append("and ").append(toRemoveFrom[y].pos);
                 } else {
                     output.append(toRemoveFrom[y].pos).append(", ");
@@ -451,17 +451,17 @@ public class Solver {
                 }
             }
         }
-        if(madeChange) {
+        if (madeChange) {
             StringBuilder output = new StringBuilder("Hidden Subset Row size " + nums.length + " removed all candidates except ");
-            for(int i = 0; i < nums.length; i++) {
-                if(i == nums.length - 1) {
+            for (int i = 0; i < nums.length; i++) {
+                if (i == nums.length - 1) {
                     output.append("and ").append(nums[i]).append(" from cells ");
                 } else {
                     output.append(nums[i]).append(", ");
                 }
             }
-            for(int y = 0; y < toRemoveFrom.length; y++) {
-                if(y == toRemoveFrom.length - 1) {
+            for (int y = 0; y < toRemoveFrom.length; y++) {
+                if (y == toRemoveFrom.length - 1) {
                     output.append("and ").append(toRemoveFrom[y].pos);
                 } else {
                     output.append(toRemoveFrom[y].pos).append(", ");
@@ -559,21 +559,19 @@ public class Solver {
                 }
             }
         }
-        if(madeChange && print) {
+        if (madeChange && print) {
             StringBuilder output = new StringBuilder("Naked Subset Box  size " + cands.length + " removing ");
-            for(int i = 0; i < cands.length; i++) {
-                if(i == cands.length - 1) {
+            for (int i = 0; i < cands.length; i++) {
+                if (i == cands.length - 1) {
                     output.append("and ").append(cands[i]).append(" from cells ");
-                }
-                else {
+                } else {
                     output.append(cands[i]).append(", ");
                 }
             }
-            for(int y = 0; y < exceptions.length; y++) {
-                if(y == exceptions.length - 1) {
+            for (int y = 0; y < exceptions.length; y++) {
+                if (y == exceptions.length - 1) {
                     output.append("and ").append(exceptions[y].pos);
-                }
-                else {
+                } else {
                     output.append(exceptions[y].pos).append(", ");
                 }
             }
@@ -665,21 +663,19 @@ public class Solver {
                 }
             }
         }
-        if(madeChange && print) {
+        if (madeChange && print) {
             StringBuilder output = new StringBuilder("Naked Subset Column " + cands.length + " removing ");
-            for(int i = 0; i < cands.length; i++) {
-                if(i == cands.length - 1) {
+            for (int i = 0; i < cands.length; i++) {
+                if (i == cands.length - 1) {
                     output.append("and ").append(cands[i]).append(" from cells ");
-                }
-                else {
+                } else {
                     output.append(cands[i]).append(", ");
                 }
             }
-            for(int y = 0; y < exceptions.length; y++) {
-                if(y == exceptions.length - 1) {
+            for (int y = 0; y < exceptions.length; y++) {
+                if (y == exceptions.length - 1) {
                     output.append("and ").append(exceptions[y].pos);
-                }
-                else {
+                } else {
                     output.append(exceptions[y].pos).append(", ");
                 }
             }
@@ -764,21 +760,19 @@ public class Solver {
                 }
             }
         }
-        if(madeChange && print) {
+        if (madeChange && print) {
             StringBuilder output = new StringBuilder("Naked Subset Row " + cands.length + " removing ");
-            for(int i = 0; i < cands.length; i++) {
-                if(i == cands.length - 1) {
+            for (int i = 0; i < cands.length; i++) {
+                if (i == cands.length - 1) {
                     output.append("and ").append(cands[i]).append(" from cells ");
-                }
-                else {
+                } else {
                     output.append(cands[i]).append(", ");
                 }
             }
-            for(int y = 0; y < exceptions.length; y++) {
-                if(y == exceptions.length - 1) {
+            for (int y = 0; y < exceptions.length; y++) {
+                if (y == exceptions.length - 1) {
                     output.append("and ").append(exceptions[y].pos);
-                }
-                else {
+                } else {
                     output.append(exceptions[y].pos).append(", ");
                 }
             }
@@ -929,15 +923,15 @@ public class Solver {
                 if (countColOccur[0] < 3 && countColOccur[0] > 0 && countColOccur[1] < 3 && countColOccur[1] > 0) {
                     /*If the columns they appeared in are the same then remove them from the same columns in the third box.*/
                     if (boxCol[0] == boxCol[2] && boxCol[1] == boxCol[3]) {
-                        removeForBlockBlockColInteraction(grid,2, cell.box % 3, boxCol[0], boxCol[1], cand);
+                        removeForBlockBlockColInteraction(grid, 2, cell.box % 3, boxCol[0], boxCol[1], cand);
                     }
                 } else if (countColOccur[0] < 3 && countColOccur[0] > 0 && countColOccur[2] < 3 && countColOccur[2] > 0) {
                     if (boxCol[0] == boxCol[4] && boxCol[1] == boxCol[5]) {
-                        removeForBlockBlockColInteraction(grid,1, cell.box % 3, boxCol[0], boxCol[1], cand);
+                        removeForBlockBlockColInteraction(grid, 1, cell.box % 3, boxCol[0], boxCol[1], cand);
                     }
                 } else if (countColOccur[1] < 3 && countColOccur[1] > 0 && countColOccur[2] < 3 && countColOccur[2] > 0) {
                     if (boxCol[2] == boxCol[4] && boxCol[3] == boxCol[5]) {
-                        removeForBlockBlockColInteraction(grid,0, cell.box % 3, boxCol[2], boxCol[3], cand);
+                        removeForBlockBlockColInteraction(grid, 0, cell.box % 3, boxCol[2], boxCol[3], cand);
                     }
                 }
             }
@@ -962,14 +956,13 @@ public class Solver {
                 }
             }
         }
-        if(madeChange) {
+        if (madeChange) {
             Cell[] removedFrom = rf.toArray(new Cell[0]);
             StringBuilder output = new StringBuilder("Block Block Column Interaction removing " + cand + " from ");
-            for(int i = 0; i < removedFrom.length; i++) {
-                if(i == removedFrom.length - 1) {
+            for (int i = 0; i < removedFrom.length; i++) {
+                if (i == removedFrom.length - 1) {
                     output.append("and ").append(removedFrom[i].pos);
-                }
-                else {
+                } else {
                     output.append(removedFrom[i].pos).append(", ");
                 }
             }
@@ -1066,15 +1059,15 @@ public class Solver {
                 if (countRowOccur[0] < 3 && countRowOccur[0] > 0 && countRowOccur[1] < 3 && countRowOccur[1] > 0) {
                     /*If the rows they appeared in are the same then remove them from the same rows in the third box.*/
                     if (boxRow[0] == boxRow[2] && boxRow[1] == boxRow[3]) {
-                        removeForBlockBlockRowInteraction(grid,2, cell.box / 3, boxRow[0], boxRow[1], cand);
+                        removeForBlockBlockRowInteraction(grid, 2, cell.box / 3, boxRow[0], boxRow[1], cand);
                     }
                 } else if (countRowOccur[0] < 3 && countRowOccur[0] > 0 && countRowOccur[2] < 3 && countRowOccur[2] > 0) {
                     if (boxRow[0] == boxRow[4] && boxRow[1] == boxRow[5]) {
-                        removeForBlockBlockRowInteraction(grid,1, cell.box / 3, boxRow[0], boxRow[1], cand);
+                        removeForBlockBlockRowInteraction(grid, 1, cell.box / 3, boxRow[0], boxRow[1], cand);
                     }
                 } else if (countRowOccur[1] < 3 && countRowOccur[1] > 0 && countRowOccur[2] < 3 && countRowOccur[2] > 0) {
                     if (boxRow[2] == boxRow[4] && boxRow[3] == boxRow[5]) {
-                        removeForBlockBlockRowInteraction(grid,0, cell.box / 3, boxRow[2], boxRow[3], cand);
+                        removeForBlockBlockRowInteraction(grid, 0, cell.box / 3, boxRow[2], boxRow[3], cand);
                     }
                 }
             }
@@ -1098,14 +1091,13 @@ public class Solver {
                 }
             }
         }
-        if(madeChange) {
+        if (madeChange) {
             Cell[] removedFrom = rf.toArray(new Cell[0]);
             StringBuilder output = new StringBuilder("Block Block Row Interaction removing " + cand + " from ");
-            for(int i = 0; i < removedFrom.length; i++) {
-                if(i == removedFrom.length - 1) {
+            for (int i = 0; i < removedFrom.length; i++) {
+                if (i == removedFrom.length - 1) {
                     output.append("and ").append(removedFrom[i].pos);
-                }
-                else {
+                } else {
                     output.append(removedFrom[i].pos).append(", ");
                 }
             }
@@ -1162,14 +1154,13 @@ public class Solver {
                 rf.add(cells);
             }
         }
-        if(madeChange) {
+        if (madeChange) {
             Cell[] removedFrom = rf.toArray(new Cell[0]);
             StringBuilder output = new StringBuilder("Row Block interaction removing " + cand + " from ");
-            for(int i = 0; i < removedFrom.length; i++) {
-                if(i == removedFrom.length - 1) {
+            for (int i = 0; i < removedFrom.length; i++) {
+                if (i == removedFrom.length - 1) {
                     output.append("and ").append(removedFrom[i].pos);
-                }
-                else {
+                } else {
                     output.append(removedFrom[i].pos).append(", ");
                 }
             }
@@ -1224,14 +1215,13 @@ public class Solver {
                 rf.add(cells[cell.col]);
             }
         }
-        if(madeChange) {
+        if (madeChange) {
             Cell[] removedFrom = rf.toArray(new Cell[0]);
             StringBuilder output = new StringBuilder("Row Column interaction removing " + cand + " from ");
-            for(int i = 0; i < removedFrom.length; i++) {
-                if(i == removedFrom.length - 1) {
+            for (int i = 0; i < removedFrom.length; i++) {
+                if (i == removedFrom.length - 1) {
                     output.append("and ").append(removedFrom[i].pos);
-                }
-                else {
+                } else {
                     output.append(removedFrom[i].pos).append(", ");
                 }
             }
@@ -1392,6 +1382,8 @@ public class Solver {
         for (Cell[] cells : grid) {
             for (Cell cell : cells) {
                 if (cell.ans == 0) {
+                    soleCandidate(grid, cell);
+                    uniqueCandidate(grid, cell);
                     rowBlockInteraction(grid, cell);
                     colBlockInteraction(grid, cell);
                     blockBlockRowInteraction(grid, cell);
