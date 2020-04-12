@@ -160,9 +160,10 @@ public class Generator extends Solver{
         }
     }
 
-    public void generateSet(Cell[][] grid) {
+    public void generateSet(int amount) {
+        Cell[][] grid = new Cell[9][9];
         int puzzlesCreated = 0;
-        while(puzzlesCreated < 300) {
+        while(puzzlesCreated < amount) {
             for(int emptySpaces = 30; emptySpaces <= 55; emptySpaces++) {
                 initialiseEmptyGrid(grid);
                 randomlyFill(grid);

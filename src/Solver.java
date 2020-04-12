@@ -1,8 +1,13 @@
+import javax.swing.*;
 import java.util.ArrayList;
 
 public class Solver {
 
-    Cell[][] grid = new Cell[9][9];
+    JTextArea text;
+
+    public void setTextArea(JTextArea text) {
+        this.text = text;
+    }
 
     public boolean change;
 
@@ -63,6 +68,8 @@ public class Solver {
                                         }
                                     }
                                     System.out.println(output);
+
+                                    text.append(output + "\n");
                                 }
                             }
                         }
@@ -129,6 +136,8 @@ public class Solver {
                                         }
                                     }
                                     System.out.println(output);
+
+                                    text.append(output + "\n");
                                 }
                             }
                         }
@@ -222,6 +231,8 @@ public class Solver {
             }
             output.append(" in box ").append(box);
             System.out.println(output);
+
+            text.append(output + "\n");
         }
     }
 
@@ -349,6 +360,8 @@ public class Solver {
             }
             output.append(" in column ").append(col);
             System.out.println(output);
+
+            text.append(output + "\n");
         }
     }
 
@@ -469,6 +482,8 @@ public class Solver {
             }
             output.append(" in row ").append(row);
             System.out.println(output);
+
+            text.append(output + "\n");
         }
     }
 
@@ -577,6 +592,8 @@ public class Solver {
             }
             output.append(" in box ").append(box);
             System.out.println(output);
+
+            text.append(output + "\n");
         }
     }
 
@@ -681,6 +698,8 @@ public class Solver {
             }
             output.append(" in column ").append(col);
             System.out.println(output);
+
+            text.append(output + "\n");
         }
     }
 
@@ -778,6 +797,8 @@ public class Solver {
             }
             output.append(" in row ").append(row);
             System.out.println(output);
+
+            text.append(output + "\n");
         }
     }
 
@@ -968,6 +989,8 @@ public class Solver {
             }
             output.append(" due to columns ").append(col1).append(" and ").append(col2);
             System.out.println(output);
+
+            text.append(output + "\n");
         }
     }
 
@@ -1103,6 +1126,8 @@ public class Solver {
             }
             output.append(" due to rows ").append(row1).append(" and ").append(row2);
             System.out.println(output);
+
+            text.append(output + "\n");
         }
     }
 
@@ -1166,6 +1191,8 @@ public class Solver {
             }
             output.append(" due to cells ").append(cell.pos).append(" and ").append(simCell.pos);
             System.out.println(output);
+
+            text.append(output + "\n");
         }
     }
 
@@ -1227,6 +1254,8 @@ public class Solver {
             }
             output.append(" due to cells ").append(cell.pos).append(" and ").append(simCell.pos);
             System.out.println(output);
+
+            text.append(output + "\n");
         }
     }
 
@@ -1281,6 +1310,8 @@ public class Solver {
                 System.out.println("Sole Candidate removing from " + cell.pos + " candidate " + (cand + 1));
                 cell.candidates[cand] = false;
                 change = true;
+
+                text.append("Sole Candidate removing from " + cell.pos + " candidate " + (cand + 1) + "\n");
             }
         }
     }
@@ -1294,6 +1325,8 @@ public class Solver {
                 cell.ans = (cand + 1);
                 cell.clearC();
                 change = true;
+
+                text.append("Unique Candidate Setting ans for cell " + cell.pos + " to " + (cand + 1) + "\n");
             }
         }
     }

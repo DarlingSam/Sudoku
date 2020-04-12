@@ -5,7 +5,9 @@ import java.util.Random;
 
 public class FileManager {
     public void write(String difficulty, Cell[][] grid) {
-        File file = new File("C:\\Users\\samda\\Desktop\\" + difficulty + ".txt");
+        /*Writes the generated puzzle to a file with the name equal to the given puzzles difficulty.*/
+//        File file = new File("C:\\Users\\samda\\Desktop\\" + difficulty + ".txt");
+        File file = new File(difficulty + ".txt");
         try {
             FileWriter fileWriter = new FileWriter(file, true);
             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
@@ -25,7 +27,9 @@ public class FileManager {
     public Random random = new Random();
 
     public Cell[][] readRandomPuzzle(String difficulty) {
-        File file = new File("C:\\Users\\samda\\Desktop\\" + difficulty + ".txt");
+        /*Reads a random puzzle from one of the files with the name equal to the given difficulty*/
+//        File file = new File("C:\\Users\\samda\\Desktop\\" + difficulty + ".txt");
+        File file = new File(difficulty + ".txt");
         Cell[][] puzzle = new Cell[9][9];
         try {
             int lines = lineCount(difficulty);
@@ -51,9 +55,11 @@ public class FileManager {
     }
 
     public int lineCount(String difficulty) {
+        /*Counts the number of lines in the file with the name equal to the given difficulty.*/
         int lines = 0;
         try {
-            File file = new File("C:\\Users\\samda\\Desktop\\" + difficulty + ".txt");
+//            File file = new File("C:\\Users\\samda\\Desktop\\" + difficulty + ".txt");
+            File file = new File(difficulty + ".txt");
             FileReader fileReader = new FileReader(file);
             BufferedReader reader = new BufferedReader(fileReader);
             while (reader.readLine() != null) {
