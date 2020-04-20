@@ -1,11 +1,15 @@
 import java.util.ArrayList;
 import java.util.Random;
 
-public class Generator extends Solver{
+//public class Generator extends Solver{
+public class Generator {
     public FileManager fm;
 
-    Generator(FileManager fileManager) {
+    public Solver s;
+
+    Generator(FileManager fileManager, Solver solver) {
         this.fm = fileManager;
+        this.s = solver;
     }
 
     public boolean triedAll(boolean[] tried) {
@@ -33,7 +37,7 @@ public class Generator extends Solver{
     public void removeValues(Cell[][] grid, int numToRemove) {
         /*If the number of solutions is 1 and the amount of positions with answer 0 is equal to the amount of values
         * it was told to remove, return.*/
-        if (numberOfSolutions(grid) == 1 && amountRemoved(grid) == numToRemove) {
+        if (numberOfSolutions(grid) == 1 && s.amountRemoved(grid) == numToRemove) {
             return;
         }
         /*Tried keeps track of which positions we have tried removing the value from to find a unique puzzle at that point.*/
@@ -64,7 +68,7 @@ public class Generator extends Solver{
                 }
                 /*If the number of solutions is 1 and the amount of positions with answer 0 is equal to the amount of values
                  * it was told to remove, return.*/
-                if (numberOfSolutions(grid) == 1 && amountRemoved(grid) == numToRemove) {
+                if (numberOfSolutions(grid) == 1 && s.amountRemoved(grid) == numToRemove) {
                     return;
                 }
             }
@@ -117,12 +121,12 @@ public class Generator extends Solver{
                 if (cell.ans == 0) {
                     /*try find a solution with each different candidate at that position.*/
                     for (int cand = 0; cand < 9; cand++) {
-                        if (!checkHouses(grid, cell, cand)) {
+                        if (!s.checkHouses(grid, cell, cand)) {
                             cell.ans = cand + 1;
                             everySolution(grid);
                             /*If this candidate leads to a solution and the solution is new add it to the
                             * arrayList of solutions.*/
-                            if (isSolved(grid) && isSolutionNew(grid)) {
+                            if (s.isSolved(grid) && isSolutionNew(grid)) {
                                 solutions.add(createNew(grid));
                             }
                         }
@@ -143,7 +147,7 @@ public class Generator extends Solver{
                     boolean[] tried = new boolean[]{false, false, false, false, false, false, false, false, false};
                     while (!triedAll(tried)) {
                         int rand = random.nextInt(9);
-                        if (!checkHouses(grid, cell, rand)) {
+                        if (!s.checkHouses(grid, cell, rand)) {
                             cell.ans = rand + 1;
                             randomlyFill(grid);
                             if (grid[8][8].ans != 0) {
@@ -165,12 +169,12 @@ public class Generator extends Solver{
         int puzzlesCreated = 0;
         while(puzzlesCreated < amount) {
             for(int emptySpaces = 30; emptySpaces <= 55; emptySpaces++) {
-                initialiseEmptyGrid(grid);
+                s.initialiseEmptyGrid(grid);
                 randomlyFill(grid);
                 removeValues(grid, emptySpaces);
                 Cell[][] emptyGrid = createNew(grid);
-                solve(grid);
-                String difficulty = getDifficulty();
+                s.solve(grid);
+                String difficulty = s.getDifficulty();
                 System.out.println("Difficulty " + difficulty);
                 System.out.println("Puzzles created " + puzzlesCreated + " empty spaces " + emptySpaces);
                 if(fm.lineCount(difficulty) < 100) {

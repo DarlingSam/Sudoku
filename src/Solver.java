@@ -3,7 +3,7 @@ import java.util.ArrayList;
 
 public class Solver {
 
-    JTextArea text;
+    public JTextArea text;
 
     public void setTextArea(JTextArea text) {
         this.text = text;
@@ -1310,7 +1310,7 @@ public class Solver {
                 System.out.println("Sole Candidate removing from " + cell.pos + " candidate " + (cand + 1));
                 cell.candidates[cand] = false;
                 change = true;
-
+                setTextArea(text);
                 text.append("Sole Candidate removing from " + cell.pos + " candidate " + (cand + 1) + "\n");
             }
         }

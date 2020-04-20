@@ -27,10 +27,11 @@ public class SudokuGUI extends JFrame {
 
     public SudokuGUI(Solver solver, Generator generator, FileManager fileManager) {
         this.solver = solver;
+        solver.setTextArea(text);
         this.generator = generator;
         this.fileManager = fileManager;
 
-        solver.setTextArea(text);
+
 
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
@@ -41,7 +42,7 @@ public class SudokuGUI extends JFrame {
 
         setTitle("Sam Darling Sudoku");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setBounds(0, 0, 1000, 670);
+        setBounds(0, 0, 1200, 670);
         JPanel contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         contentPane.setLayout(null);
@@ -70,7 +71,7 @@ public class SudokuGUI extends JFrame {
         contentPane.add(gridPanel);
 
         JPanel eastPanel = new JPanel(null);
-        eastPanel.setBounds(600, 0, 400, 600);
+        eastPanel.setBounds(600, 0, 600, 600);
         contentPane.add(eastPanel);
 
         createSolveButton(eastPanel);
@@ -258,7 +259,7 @@ public class SudokuGUI extends JFrame {
         /*Creates the output scroll pane.*/
         text.setEditable(false);
         JScrollPane outputScroll = new JScrollPane(text);
-        outputScroll.setBounds(30, 200, 340, 400);
+        outputScroll.setBounds(30, 200, 540, 400);
         eastPanel.add(outputScroll);
     }
 
@@ -273,15 +274,16 @@ public class SudokuGUI extends JFrame {
             candButtons[row][col][cand].setMargin(new Insets(0, 0, 0, 0));
             candButtons[row][col][cand].setBorderPainted(false);
             candButtons[row][col][cand].setFocusPainted(false);
-            candButtons[row][col][cand].setContentAreaFilled(false);
+            candButtons[row][col][cand].setBackground(Color.WHITE);
+
             int finalCand = cand;
             candButtons[row][col][cand].addActionListener(e -> {
-                if (candButtons[row][col][finalCand].getForeground().equals(myGreen)) {
-                    candButtons[row][col][finalCand].setForeground(Color.RED);
-                } else if (candButtons[row][col][finalCand].getForeground() == Color.RED) {
-                    candButtons[row][col][finalCand].setForeground(Color.BLACK);
+                if (candButtons[row][col][finalCand].getBackground().equals(myGreen)) {
+                    candButtons[row][col][finalCand].setBackground(Color.RED);
+                } else if (candButtons[row][col][finalCand].getBackground() == Color.RED) {
+                    candButtons[row][col][finalCand].setBackground(Color.WHITE);
                 } else {
-                    candButtons[row][col][finalCand].setForeground(myGreen);
+                    candButtons[row][col][finalCand].setBackground(myGreen);
                 }
             });
 
